@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="Saper:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>Saper</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="Saper-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="Saper:war exploded" />
+    </root>
+  </artifact>
+</component>
