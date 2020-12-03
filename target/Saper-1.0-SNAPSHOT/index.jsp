@@ -11,6 +11,10 @@
     <title>Title</title>
 </head>
 <body>
-    Hello, World!
+    <div id="container">
+        <div id="board" oncontextmenu="return false">
+            Board1
+        </div>
+    </div>
 </body>
 </html>
