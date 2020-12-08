@@ -3,4 +3,36 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
+    <servlet>
+        <servlet-name>App</servlet-name>
+        <servlet-class>pl.polsl.lab.saper.servlets.AppServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Menu</servlet-name>
+        <servlet-class>pl.polsl.lab.saper.servlets.MenuServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>InitGame</servlet-name>
+        <servlet-class>pl.polsl.lab.saper.servlets.InitGameServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RawInputServlet</servlet-name>
+        <servlet-class>pl.polsl.lab.saper.servlets.RawInputServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>App</servlet-name>
+        <url-pattern>/App</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Menu</servlet-name>
+        <url-pattern>/Menu</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>InitGame</servlet-name>
+        <url-pattern>/InitGame</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RawInputServlet</servlet-name>
+        <url-pattern>/RawInputServlet</url-pattern>
+    </servlet-mapping>
 </web-app>

@@ -1,0 +1,95 @@
+html body {
+    margin: 0;
+    padding: 0;
+}
+
+#container {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+#content {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    height: auto;
+    width: auto;
+}
+
+#board {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: row;
+}
+
+.row {
+    display: flex;
+    flex-direction: column;
+}
+
+.field {
+    border: 2px solid #414141;
+    width: 50px;
+    height: 50px;
+}
+
+#buttonPanel {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 10vh;
+}
+
+#fInputMenu {
+    width: 28%;
+}
+
+#fInputRaw {
+    width: 68%;
+}
+
+#fInputMenu > input {
+    width: 100%;
+}
+
+#inputRaw {
+    width: 100%;
+}
+
+.no-click {
+    background-color: #0288d1;
+}
+
+.board-border {
+    background-color: #616161;
+}
+
+.click-right {
+    background-color: #d2df27;
+}
+
+.click-empty {
+    background-color: #ffffff;
+}
+
+.click-mine {
+    background-color: #ff0000;
+}
+
+.mine {
+    background-color: #d32f2f;
+}
+
+.no-select {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
