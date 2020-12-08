@@ -1,5 +1,7 @@
 package pl.polsl.lab.saper.model;
 
+import pl.polsl.lab.saper.exception.FieldException;
+
 /**
  * Class define board field
  *
@@ -26,6 +28,11 @@ public class Field extends Index {
         this.aroundMines = 0;
     }
 
+    public void setAroundMines(Integer num) throws FieldException {
+        if (num < 0 || num > 8) throw new FieldException("Invalid number of mine");
+        this.aroundMines = num;
+    }
+
     /**
      * Method set field as mine
      */
@@ -43,13 +50,10 @@ public class Field extends Index {
 
     /**
      * Method set field as selected
-     *
-     * @param num number of mine around field
      * @return false when filed was selected earlier, otherwise true
      */
-    public boolean setFieldAsSelected(Integer num) {
+    public boolean setFieldAsSelected() {
         if (!this.selected) {
-            this.aroundMines = num;
             this.selected = true;
             return true;
         }

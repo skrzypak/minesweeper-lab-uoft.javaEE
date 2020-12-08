@@ -7,7 +7,6 @@
 //import org.junit.jupiter.params.ParameterizedTest;
 //import org.junit.jupiter.params.provider.Arguments;
 //import org.junit.jupiter.params.provider.MethodSource;
-//import pl.polsl.lab.saper.controller.GameController;
 //import pl.polsl.lab.saper.exception.FieldException;
 //import pl.polsl.lab.saper.model.Game;
 //import pl.polsl.lab.saper.model.Index;
@@ -20,7 +19,7 @@
 // * Class contain test for game model and randomMines method
 // *
 // * @author Konrad Skrzypczyk
-// * @version 1.0
+// * @version 2.0
 // */
 //class GameTest {
 //
@@ -133,26 +132,7 @@
 //    @RepeatedTest(5)
 //    @Description("Test randomMines method with negative arguments. It is used in GameController in constructor")
 //    void randomMinesInvalidValueTest() {
-//        try {
-//            GameController gameController = new GameController(null,0, 0);
-//            fail("Can random mines for board with wrong width or height");
-//        } catch (IllegalArgumentException ignore) {
-//        }
-//        try {
-//            GameController gameController = new GameController(null,0, 1);
-//            fail("Can random mines for board with wrong width or height");
-//        } catch (IllegalArgumentException ignore) {
-//        }
-//        try {
-//            GameController gameController = new GameController(null,1, 0);
-//            fail("Can random mines for board with wrong width or height");
-//        } catch (IllegalArgumentException ignore) {
-//        }
-//        try {
-//            GameController gameController = new GameController(null,-1, 1);
-//            fail("Can random mines for board with wrong width or height");
-//        } catch (IllegalArgumentException ignore) {
-//        }
+//
 //    }
 //
 //    /**
@@ -161,16 +141,7 @@
 //    @Test
 //    @Description("Test that use @Disabled label")
 //    void randomMinesBoardNullException() {
-//        try {
-//            GameController gameController = new GameController(null,null, -1);
-//            fail("Can random mines for board with wrong width or height");
-//        } catch (NullPointerException ignore) {
-//        }
-//        try {
-//            GameController gameController = new GameController(null,-1, null);
-//            fail("Can random mines for board with wrong width or height");
-//        } catch (NullPointerException ignore) {
-//        }
+//
 //    }
 //
 //    /**

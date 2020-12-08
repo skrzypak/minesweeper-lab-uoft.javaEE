@@ -48,6 +48,7 @@ html body {
 
 #fInputMenu {
     width: 28%;
+    min-width: 500px;
 }
 
 #fInputRaw {

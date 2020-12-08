@@ -97,18 +97,24 @@ public class Game {
 
     /**
      * Method set filed as selected by player
+     * @param inx field index object
+     * @throws FieldException if field value is game board border or out of range
+     */
+    public void setFieldAsSelected(Index inx) throws FieldException {
+        isCorrectField(inx);
+        if (this.gameBoard.get(inx).setFieldAsSelected())
+            this.freeFieldCounter--;
+    }
+
+    /**
+     * Method set filed as selected by player
      *
      * @param num number of mine around field
      * @param inx field index object
      * @throws FieldException if field value is game board border or out of range
      */
-    public void setFieldAsSelected(Integer num, Index inx) throws FieldException {
-
-        if (num < 0 || num > 8) throw new FieldException("Invalid number of mine");
-        isCorrectField(inx);
-
-        if (this.gameBoard.get(inx).setFieldAsSelected(num))
-            this.freeFieldCounter--;
+    public void setFiledAroundMines(Integer num, Index inx) throws FieldException {
+        this.gameBoard.get(inx).setAroundMines(num);
     }
 
     /**
@@ -234,6 +240,11 @@ public class Game {
             throw new FieldException("Invalid row index");
         if (inx.getColIndex() <= 0 || inx.getColIndex() > getNumOfCols() - 2)
             throw new FieldException("Invalid column index");
+    }
+
+    public Integer getNumOfMinesAroundField(Index inx) throws FieldException {
+        isCorrectField(inx);
+        return this.gameBoard.get(inx).getNumOfMinesAroundField();
     }
 }
 

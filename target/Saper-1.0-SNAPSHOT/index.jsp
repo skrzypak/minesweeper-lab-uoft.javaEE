@@ -20,7 +20,7 @@
                 <form action="InitGame" id="fInputMenu">
                     <input type="submit" value="Start new game" />
                 </form>
-                <form action="RawInputServlet" id="fInputRaw">
+                <form action="RawInput" id="fInputRaw">
                     <label style="width: 100%">
                         <input type="text" id="inputRaw" />
                     </label>
