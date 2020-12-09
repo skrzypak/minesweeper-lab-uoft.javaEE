@@ -7,7 +7,11 @@ class App {
                 let json = xhr.responseText;
                 let data = JSON.parse(json);
                 console.log(data)
-                //field.setAttribute("id", `R${i}C${j}`)
+                let f = document.getElementById(`R${rowInx}C${colInx}`)
+                f.classList.remove("no-click");
+                f.classList.remove("no-select");
+                f.classList.add("click-empty");
+                f.innerHTML = "<span>"+data+"</span>";
             }
         }
         xhr.open('GET', `${document.location.href}fieldClick?row=${rowInx}&col=${colInx}&btn=left`, true);
@@ -20,6 +24,9 @@ class App {
             if (xhr.readyState === 4) {
                 let json = xhr.responseText;
                 let data = JSON.parse(json);
+                let f = document.getElementById(`R${rowInx}C${colInx}`)
+                f.classList.remove("no-click");
+                f.classList.add("click-right");
                 console.log(data)
             }
         }
@@ -29,6 +36,16 @@ class App {
 
     static renderBoard = (rows, cols) => {
         let baord = document.getElementById("board")
+        // let boardHeight = document.getElementById("board").style.height;
+        // let boardWidth = document.getElementById("board").style.width;
+        //
+        // let boardMinSize = boardHeight > boardWidth ? boardWidth : boardHeight;
+        // let fieldSize = boardMinSize / (rows - 2)
+        //
+        // let maxNumIndex = rows > cols ? cols - 2: rows - 2;
+        // let fieldMaxSize = 100 / maxNumIndex
+
+
         for(let i = 1; i < rows - 1; i++) {
             let row = document.createElement("div")
             row.classList.add("row")
@@ -38,6 +55,13 @@ class App {
                 field.classList.add("field")
                 field.classList.add("no-click")
                 field.classList.add("no-select")
+                // field.style.height = `${fieldSize}px`
+                // field.style.width = `${fieldSize}px`
+                field.style.lineHeight = `50px`
+                field.style.height = `50px`
+                field.style.width = `50px`
+                // field.style.maxHeight = `${fieldMaxSize}%`
+                // field.style.maxWidth = `${fieldMaxSize}%`
                 field.setAttribute("id", `R${i}C${j}`)
                 field.onclick = () => {
                     App.onFieldClickAsSelect(i, j)

@@ -39,7 +39,7 @@ public class FieldClickServlet extends HttpServlet {
             try {
                 TODO.get().setFieldAsSelected(inx);
                 // TODO game status object
-                respJsonString = this.gson.toJson("{mines: "+TODO.get().getNumOfMinesAroundField(inx)+"}");
+                respJsonString = this.gson.toJson(TODO.get().getNumOfMinesAroundField(inx));
             } catch (FieldException e) {
                 respJsonString = this.gson.toJson(e);
             }
