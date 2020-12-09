@@ -5,7 +5,6 @@ import pl.polsl.lab.saper.model.Dimensions;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -19,7 +18,7 @@ public class InitGameServlet extends HttpServlet {
     private final Gson gson = new Gson();
 
     /**
-     * Handles the HTTP <code>GET</code> method.
+     * Handles the HTTP <code>POST</code> method.
      *
      * @param request servlet request
      * @param response servlet response
@@ -27,11 +26,14 @@ public class InitGameServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Map<String,String> jsonMap = new HashMap<>();
 
         try {
+
+            System.out.println(request.getParameter("height"));
+            System.out.println(request.getParameter("width"));
+
             Integer height = Integer.parseInt(request.getParameter("height"));
             Integer width = Integer.parseInt(request.getParameter("width"));
 

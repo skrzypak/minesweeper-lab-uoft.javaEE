@@ -24,14 +24,13 @@ public class FieldClickServlet extends HttpServlet {
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param req servlet request
+     * @param req servlet request. Must contain 'row' and 'col'
      * @param resp servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         Map<String,String> jsonMap = new HashMap<>();
 
         if(!isGameRunning()) {

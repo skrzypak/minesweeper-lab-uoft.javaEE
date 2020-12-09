@@ -55,6 +55,7 @@ class App {
             if (xhr.readyState === 4) {
                 let json = xhr.responseText;
                 let data = JSON.parse(json);
+                //console.log(data)
                 let f = document.getElementById(`R${rowInx}C${colInx}`)
                 if(data.error === undefined) {
                     if(data.mark === "true") {
@@ -117,7 +118,8 @@ class App {
                 else alert(data.error)
             }
         }
-        xhr.open('GET', `${document.location.href}InitGame?height=${height}&width=${width}`, true);
-        xhr.send(null);
+        xhr.open('POST', `${document.location.href}InitGame?`);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.send(`height=${height}&width=${width}`);
     }
 }
