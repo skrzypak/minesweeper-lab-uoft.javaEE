@@ -16,6 +16,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class define servlet that update model after click fieald
+ *
+ * @author Konrad Skrzypczyk
+ * @version 1.0
+ */
 @WebServlet(name = "FieldClickServlet", urlPatterns = "/fieldClick")
 public class FieldClickServlet extends HttpServlet {
 

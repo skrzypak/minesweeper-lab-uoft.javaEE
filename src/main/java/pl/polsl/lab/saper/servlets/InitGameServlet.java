@@ -13,9 +13,15 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.google.gson.Gson;
 import pl.polsl.lab.saper.model.Index;
 
+/**
+ * Class define servlet that create new game
+ *
+ * @author Konrad Skrzypczyk
+ * @version 1.0
+ */
 public class InitGameServlet extends HttpServlet {
 
-    private final Gson gson = new Gson();
+    private final Gson gson = new Gson();   // Gson object
 
     /**
      * Handles the HTTP <code>POST</code> method.
@@ -31,9 +37,6 @@ public class InitGameServlet extends HttpServlet {
 
         try {
 
-            System.out.println(request.getParameter("height"));
-            System.out.println(request.getParameter("width"));
-
             Integer height = Integer.parseInt(request.getParameter("height"));
             Integer width = Integer.parseInt(request.getParameter("width"));
 
@@ -43,6 +46,9 @@ public class InitGameServlet extends HttpServlet {
 
             Dimensions dm = new Dimensions(TODO.get().getBoardData().getNumOfRows(), TODO.get().getBoardData().getNumOfCols());
             jsonMap.put("size", this.gson.toJson(dm));
+
+            CookiesServlet ob = new CookiesServlet();
+            ob.doPost(request, response);
 
         } catch (NumberFormatException | OutOfMemoryError | FieldException e) {
             jsonMap.put("error", e.getMessage());

@@ -103,25 +103,33 @@ class App {
     }
 
     init() {
-        let height = prompt("Enter height")
-        let width = prompt("Enter width")
-        let xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                let json = xhr.responseText;
-                let data = JSON.parse(json);
-                if(data.error === undefined) {
-                    let size = JSON.parse(data.size)
-                    App.renderBoard(size.height, size.width);
+
+        let cXhr = new XMLHttpRequest();
+        cXhr.onreadystatechange = function() {
+            if (cXhr.readyState === 4) {
+                let oldData = JSON.parse(cXhr.responseText);
+                let height = prompt("Enter height", oldData.lastHeight)
+                let width = prompt("Enter width", oldData.lastWidth)
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        let json = xhr.responseText;
+                        let data = JSON.parse(json);
+                        if(data.error === undefined) {
+                            let size = JSON.parse(data.size)
+                            App.renderBoard(size.height, size.width);
+                        }
+                        else alert(data.error)
+                    }
                 }
 
-                else alert(data.error)
+                xhr.open('POST', `${document.location.href}InitGame?`);
+                xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                xhr.send(`height=${height}&width=${width}`);
+
             }
         }
-        //xhr.open('GET', `${document.location.href}InitGame?height=${height}&width=${width}`, true);
-        //xhr.send(null)
-        xhr.open('POST', `${document.location.href}InitGame?`);
-        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        xhr.send(`height=${height}&width=${width}`);
+        cXhr.open('GET', `${document.location.href}cookies?`);
+        cXhr.send(null);
     }
 }
