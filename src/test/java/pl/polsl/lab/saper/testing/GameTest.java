@@ -23,7 +23,7 @@ class GameTest {
 
     /**
      * Test data which contain wrong row index
-     *
+     * @throws FieldException field error
      * @return test data
      */
     private static Stream<Arguments> FieldExceptionRowGenerator() throws FieldException {
@@ -41,7 +41,7 @@ class GameTest {
 
     /**
      * Test data which contain wrong column index
-     *
+     * @throws FieldException field error
      * @return test data
      */
     private static Stream<Arguments> FieldExceptionColGenerator() throws FieldException {
@@ -58,7 +58,7 @@ class GameTest {
 
     /**
      * Test data which contain correct field index
-     *
+     * @throws FieldException field error
      * @return test data
      */
     private static Stream<Arguments> FieldGenerator() throws FieldException {

@@ -1,4 +1,5 @@
 package pl.polsl.lab.saper.servlets;
+import pl.polsl.lab.saper.Content;
 import pl.polsl.lab.saper.exception.FieldException;
 import pl.polsl.lab.saper.model.Dimensions;
 
@@ -33,6 +34,7 @@ public class InitGameServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
         Map<String,String> jsonMap = new HashMap<>();
 
         try {
@@ -40,11 +42,11 @@ public class InitGameServlet extends HttpServlet {
             Integer height = Integer.parseInt(request.getParameter("height"));
             Integer width = Integer.parseInt(request.getParameter("width"));
 
-            TODO.clear();
-            TODO.set(height, width);
+            Content.clear();
+            Content.set(height, width);
             randomMines(height, width);
 
-            Dimensions dm = new Dimensions(TODO.get().getBoardData().getNumOfRows(), TODO.get().getBoardData().getNumOfCols());
+            Dimensions dm = new Dimensions(Content.get().getBoardData().getNumOfRows(), Content.get().getBoardData().getNumOfCols());
             jsonMap.put("size", this.gson.toJson(dm));
 
             CookiesServlet ob = new CookiesServlet();
@@ -85,7 +87,7 @@ public class InitGameServlet extends HttpServlet {
             numOfMine = ThreadLocalRandom.current().nextInt(0, 1);
         }
 
-        TODO.get().setFreeFieldCounter(TODO.get().getFreeFieldCounter() - numOfMine);
+        Content.get().setFreeFieldCounter(Content.get().getFreeFieldCounter() - numOfMine);
 
         int randRow;
         int randCol;
@@ -102,12 +104,12 @@ public class InitGameServlet extends HttpServlet {
                     randCol = ThreadLocalRandom.current().nextInt(1, width);
                 else randCol = 1;
 
-            } while (TODO.get().getBoardData().get(new Index(randRow, randCol)).isMine());
+            } while (Content.get().getBoardData().get(new Index(randRow, randCol)).isMine());
 
-            TODO.get().getBoardData().get(new Index(randRow, randCol)).setAsMine();
+            Content.get().getBoardData().get(new Index(randRow, randCol)).setAsMine();
         }
 
-        countMines(TODO.get().getBoardData().getNumOfRows(), TODO.get().getBoardData().getNumOfCols());
+        countMines(Content.get().getBoardData().getNumOfRows(), Content.get().getBoardData().getNumOfCols());
     }
 
     /**
@@ -131,11 +133,11 @@ public class InitGameServlet extends HttpServlet {
                 index.add(new Index(row + 1, col + 1));
                 for (Index i : index) {
                     try {
-                        if (TODO.get().getInfoAboutMine(i)) num++;
+                        if (Content.get().getInfoAboutMine(i)) num++;
                     } catch (FieldException ignored) { }
                 }
                 try {
-                    TODO.get().setFiledAroundMines(num, new Index(row, col));
+                    Content.get().setFiledAroundMines(num, new Index(row, col));
                 } catch (FieldException ignored) { }
             }
         }

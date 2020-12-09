@@ -1,6 +1,7 @@
 package pl.polsl.lab.saper.servlets;
 
 import com.google.gson.Gson;
+import pl.polsl.lab.saper.Content;
 import pl.polsl.lab.saper.exception.FieldException;
 import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
@@ -52,24 +53,24 @@ public class FieldClickServlet extends HttpServlet {
                 // Set as selected
                 try {
 
-                    if(TODO.get().getNumOfMinesAroundField(inx) == 0) {
+                    if(Content.get().getNumOfMinesAroundField(inx) == 0) {
                         Map<String,Integer> tmp = new HashMap<>();
                         findUntilNoZeroField(tmp, inx);
                         jsonMap.put("zero", this.gson.toJson(tmp));
                     }
 
-                    TODO.get().setFieldAsSelected(inx);
+                    Content.get().setFieldAsSelected(inx);
                     updateGameStatus(inx);
 
-                    jsonMap.put("numOfMines", TODO.get().getNumOfMinesAroundField(inx).toString());
+                    jsonMap.put("numOfMines", Content.get().getNumOfMinesAroundField(inx).toString());
 
-                    jsonMap.put("mine", String.valueOf(TODO.get().getInfoAboutMine(inx)));
+                    jsonMap.put("mine", String.valueOf(Content.get().getInfoAboutMine(inx)));
 
                 } catch (FieldException e) {
                     jsonMap.put("error", e.getMessage());
                 }
 
-                if(TODO.get().getGameResult() == IEnumGame.GameResult.LOSE) {
+                if(Content.get().getGameResult() == IEnumGame.GameResult.LOSE) {
                     ArrayList<Index> arr = getMinesIndex();
                     jsonMap.put("mines", this.gson.toJson(arr));
                 }
@@ -77,13 +78,13 @@ public class FieldClickServlet extends HttpServlet {
             } else if (type.equals("right")) {
                 // Set as mark
                 try {
-                    if(!TODO.get().fieldSelected(inx)) {
-                        if(TODO.get().getInfoAboutMark(inx)) {
-                            TODO.get().removeFieldMark(inx);
+                    if(!Content.get().fieldSelected(inx)) {
+                        if(Content.get().getInfoAboutMark(inx)) {
+                            Content.get().removeFieldMark(inx);
                         } else {
-                            TODO.get().setFieldAsMark(inx);
+                            Content.get().setFieldAsMark(inx);
                         }
-                        jsonMap.put("mark", String.valueOf(TODO.get().getInfoAboutMark(inx)));
+                        jsonMap.put("mark", String.valueOf(Content.get().getInfoAboutMark(inx)));
                     } else {
                         jsonMap.put("error", "Field is selected");
                     }
@@ -97,7 +98,7 @@ public class FieldClickServlet extends HttpServlet {
         }
 
         resp.setContentType("application/json;charset=UTF-8");
-        jsonMap.put("gameStatus", TODO.get().getGameResult().toString());
+        jsonMap.put("gameStatus", Content.get().getGameResult().toString());
         PrintWriter out = resp.getWriter();
         out.print(this.gson.toJson(jsonMap));
         out.flush();
@@ -112,10 +113,10 @@ public class FieldClickServlet extends HttpServlet {
      */
     private void updateGameStatus(Index inx) {
         try {
-            if (TODO.get().getInfoAboutMine(inx)) TODO.get().setLose();
+            if (Content.get().getInfoAboutMine(inx)) Content.get().setLose();
         } catch (FieldException ignored) { }
 
-        if (TODO.get().getFreeFieldCounter() <= 0) TODO.get().setWin();
+        if (Content.get().getFreeFieldCounter() <= 0) Content.get().setWin();
     }
 
     /**
@@ -124,7 +125,7 @@ public class FieldClickServlet extends HttpServlet {
      * @return TRUE if game is running or FALSE if end
      */
     private boolean isGameRunning() {
-        return TODO.get().getRunning();
+        return Content.get().getRunning();
     }
 
     /**
@@ -133,11 +134,11 @@ public class FieldClickServlet extends HttpServlet {
      */
     private ArrayList<Index> getMinesIndex() {
         ArrayList<Index> minesIndex = new ArrayList<>();
-        for (int i = 1; i < TODO.get().getNumOfRows() - 1; i++) {
-            for (int j = 1; j < TODO.get().getNumOfCols() - 1; j++) {
+        for (int i = 1; i < Content.get().getNumOfRows() - 1; i++) {
+            for (int j = 1; j < Content.get().getNumOfCols() - 1; j++) {
                 try {
                     Index inx = new Index(i, j);
-                    if (TODO.get().getInfoAboutMine(inx))
+                    if (Content.get().getInfoAboutMine(inx))
                         minesIndex.add(inx);
                 } catch (FieldException ignored) { }
             }
@@ -153,7 +154,7 @@ public class FieldClickServlet extends HttpServlet {
     private void findUntilNoZeroField(Map<String,Integer> tmp, Index inx) {
 
         try {
-            if (TODO.get().getInfoAboutMine(inx) || TODO.get().fieldSelected(inx)) {
+            if (Content.get().getInfoAboutMine(inx) || Content.get().fieldSelected(inx)) {
                 //Field has mine or was selected earlier so end recursive
                 return;
             }
@@ -165,13 +166,13 @@ public class FieldClickServlet extends HttpServlet {
         Integer mines = 0;
 
         try {
-            mines = TODO.get().getNumOfMinesAroundField(inx);
+            mines = Content.get().getNumOfMinesAroundField(inx);
         } catch (FieldException ignored) { }
 
         if (mines > 0) {
             // Field is no mine but around have samo mine, so set field as selected and end recursive
             try {
-                TODO.get().setFieldAsSelected(inx);
+                Content.get().setFieldAsSelected(inx);
                 tmp.put(this.gson.toJson(inx), mines);
             } catch (FieldException ignored) {
             }
@@ -180,7 +181,7 @@ public class FieldClickServlet extends HttpServlet {
 
         try {
             // Field has no mine so set as 0, next call recursive to next fields
-            TODO.get().setFieldAsSelected(inx);
+            Content.get().setFieldAsSelected(inx);
             tmp.put(this.gson.toJson(inx), 0);
         } catch (FieldException ignored) { }
 

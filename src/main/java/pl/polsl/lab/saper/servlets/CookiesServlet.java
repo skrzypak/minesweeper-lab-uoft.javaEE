@@ -17,7 +17,7 @@ import javax.servlet.http.*;
 /**
  * Servlet presenting the use of cookies. Save last height and width board
  *
- * @author Gall Anonim
+ * @author Konrad Skrzypczyk
  * @version 1.0
  */
 @WebServlet(name = "CookiesServlet", urlPatterns = "/cookies")
