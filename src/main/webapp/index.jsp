@@ -16,6 +16,9 @@
         <div id="content">
             <div id="board" oncontextmenu="return false">
             </div>
+            <div style="text-align: center">
+                <span>Type F5 to start new game</span>
+            </div>
         </div>
     </div>
 

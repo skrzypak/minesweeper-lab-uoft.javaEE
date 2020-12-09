@@ -19,8 +19,7 @@ import java.util.Map;
 @WebServlet(name = "FieldClickServlet", urlPatterns = "/fieldClick")
 public class FieldClickServlet extends HttpServlet {
 
-    private final Gson gson = new Gson();
-    private ArrayList<Index> tmp;
+    private final Gson gson = new Gson();  // Gson object
 
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -47,15 +46,15 @@ public class FieldClickServlet extends HttpServlet {
             if (type.equals("left")) {
                 // Set as selected
                 try {
-                    TODO.get().setFieldAsSelected(inx);
-                    updateGameStatus(inx);
 
                     if(TODO.get().getNumOfMinesAroundField(inx) == 0) {
-                        this.tmp = new ArrayList<>();
-                        findUntilNoZeroField(inx);
-                        System.out.println(this.tmp);
-                        jsonMap.put("zero", this.gson.toJson(this.tmp));
+                        Map<String,Integer> tmp = new HashMap<>();
+                        findUntilNoZeroField(tmp, inx);
+                        jsonMap.put("zero", this.gson.toJson(tmp));
                     }
+
+                    TODO.get().setFieldAsSelected(inx);
+                    updateGameStatus(inx);
 
                     jsonMap.put("numOfMines", TODO.get().getNumOfMinesAroundField(inx).toString());
 
@@ -142,9 +141,10 @@ public class FieldClickServlet extends HttpServlet {
 
     /**
      * Discover recursive all zero mines fields
+     * @param tmp ref to map of index
      * @param inx field index object
      */
-    private void findUntilNoZeroField(Index inx) {
+    private void findUntilNoZeroField(Map<String,Integer> tmp, Index inx) {
 
         try {
             if (TODO.get().getInfoAboutMine(inx) || TODO.get().fieldSelected(inx)) {
@@ -160,15 +160,13 @@ public class FieldClickServlet extends HttpServlet {
 
         try {
             mines = TODO.get().getNumOfMinesAroundField(inx);
-        } catch (FieldException e) {
-            e.printStackTrace();
-        }
+        } catch (FieldException ignored) { }
 
         if (mines > 0) {
             // Field is no mine but around have samo mine, so set field as selected and end recursive
             try {
                 TODO.get().setFieldAsSelected(inx);
-                tmp.add(inx);
+                tmp.put(this.gson.toJson(inx), mines);
             } catch (FieldException ignored) {
             }
             return;
@@ -177,21 +175,20 @@ public class FieldClickServlet extends HttpServlet {
         try {
             // Field has no mine so set as 0, next call recursive to next fields
             TODO.get().setFieldAsSelected(inx);
-            tmp.add(inx);
-        } catch (FieldException ignored) {
-        }
+            tmp.put(this.gson.toJson(inx), 0);
+        } catch (FieldException ignored) { }
 
         int row = inx.getRowIndex();
         int col = inx.getColIndex();
 
-        findUntilNoZeroField(new Index(row + 1, col - 1));
-        findUntilNoZeroField(new Index(row + 1, col + 1));
-        findUntilNoZeroField(new Index(row - 1, col - 1));
-        findUntilNoZeroField(new Index(row - 1, col + 1));
-        findUntilNoZeroField(new Index(row + 1, col));
-        findUntilNoZeroField(new Index(row, col + 1));
-        findUntilNoZeroField(new Index(row, col - 1));
-        findUntilNoZeroField(new Index(row - 1, col));
+        findUntilNoZeroField(tmp, new Index(row + 1, col - 1));
+        findUntilNoZeroField(tmp, new Index(row + 1, col + 1));
+        findUntilNoZeroField(tmp, new Index(row - 1, col - 1));
+        findUntilNoZeroField(tmp, new Index(row - 1, col + 1));
+        findUntilNoZeroField(tmp, new Index(row + 1, col));
+        findUntilNoZeroField(tmp, new Index(row, col + 1));
+        findUntilNoZeroField(tmp, new Index(row, col - 1));
+        findUntilNoZeroField(tmp, new Index(row - 1, col));
 
     }
 

@@ -6,7 +6,7 @@ class App {
             if (xhr.readyState === 4) {
                 let json = xhr.responseText;
                 let data = JSON.parse(json);
-                console.log(data)
+                //console.log(data)
                 if(data.error === undefined) {
                     let f = document.getElementById(`R${rowInx}C${colInx}`)
                     if(data.gameStatus === "NONE" || data.gameStatus === "WIN") {
@@ -14,11 +14,21 @@ class App {
                         f.classList.remove("no-select");
                         f.classList.add("click-empty");
                         f.innerHTML = "<span>"+data.numOfMines+"</span>";
+                        if(data.zero !== undefined) {
+                            let z = JSON.parse(data.zero);
+                            for (const [key, value] of Object.entries(z)) {
+                                let k = JSON.parse(key)
+                                let fi = document.getElementById(`R${k.row}C${k.col}`)
+                                fi.classList.remove("no-click");
+                                fi.classList.remove("no-select");
+                                fi.classList.add("click-empty");
+                                fi.innerHTML = "<span>"+value+"</span>";
+                            }
+                        }
                         if(data.gameStatus === "WIN")
                             alert(data.gameStatus)
                     } else if(data.gameStatus === "LOSE") {
                         let mines = JSON.parse(data.mines);
-                        console.log(mines)
                         mines.map(el => {
                             let fi = document.getElementById(`R${el.row}C${el.col}`)
                             fi.classList.remove("no-click");
@@ -92,15 +102,22 @@ class App {
     }
 
     init() {
+        let height = prompt("Enter height")
+        let width = prompt("Enter width")
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 let json = xhr.responseText;
                 let data = JSON.parse(json);
-                App.renderBoard(data.height, data.width);
+                if(data.error === undefined) {
+                    let size = JSON.parse(data.size)
+                    App.renderBoard(size.height, size.width);
+                }
+
+                else alert(data.error)
             }
         }
-        xhr.open('GET', `${document.location.href}InitGame?height=5&width=5`, true);
+        xhr.open('GET', `${document.location.href}InitGame?height=${height}&width=${width}`, true);
         xhr.send(null);
     }
 }

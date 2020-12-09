@@ -21,8 +21,12 @@ public class Game {
      * @param height new board height;
      * @param width  new board width;
      * @throws OutOfMemoryError when board is to big
+     * @throws FieldException invalid baord size
      */
-    public Game(Integer height, Integer width) {
+    public Game(Integer height, Integer width) throws FieldException {
+
+        if (height <= 0 || width <= 0) throw new FieldException("Invalid height or width size");
+
         this.gameResult = IEnumGame.GameResult.NONE;
         this.gameBoard = new GameBoard(height, width);
         this.freeFieldCounter = height * width;

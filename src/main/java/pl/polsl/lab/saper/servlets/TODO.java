@@ -1,9 +1,7 @@
 package pl.polsl.lab.saper.servlets;
 
+import pl.polsl.lab.saper.exception.FieldException;
 import pl.polsl.lab.saper.model.Game;
-import pl.polsl.lab.saper.model.Index;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 public class TODO {
 
@@ -11,7 +9,7 @@ public class TODO {
 
     private TODO() { }
 
-    static public void set(Integer height, Integer width) {
+    static public void set(Integer height, Integer width) throws FieldException {
         if (TODO.gameModel == null) {
             gameModel = new Game(height, width);
         }

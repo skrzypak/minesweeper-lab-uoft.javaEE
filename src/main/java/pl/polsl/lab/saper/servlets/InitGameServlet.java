@@ -5,7 +5,10 @@ import pl.polsl.lab.saper.model.Dimensions;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
+import java.text.ParseException;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.Gson;
@@ -26,20 +29,27 @@ public class InitGameServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        PrintWriter out = response.getWriter();
+        Map<String,String> jsonMap = new HashMap<>();
 
-        Integer height = Integer.parseInt(request.getParameter("height"));
-        Integer width = Integer.parseInt(request.getParameter("width"));
+        try {
+            Integer height = Integer.parseInt(request.getParameter("height"));
+            Integer width = Integer.parseInt(request.getParameter("width"));
 
-        TODO.clear();
-        TODO.set(height, width);
-        randomMines(height, width);
+            TODO.clear();
+            TODO.set(height, width);
+            randomMines(height, width);
 
-        Dimensions dm = new Dimensions(TODO.get().getBoardData().getNumOfRows(), TODO.get().getBoardData().getNumOfCols());
-        String dmJsonString = this.gson.toJson(dm);
-        response.setContentType("application/json;charset=UTF-8");
-        out.print(dmJsonString);
-        out.flush();
+            Dimensions dm = new Dimensions(TODO.get().getBoardData().getNumOfRows(), TODO.get().getBoardData().getNumOfCols());
+            jsonMap.put("size", this.gson.toJson(dm));
+
+        } catch (NumberFormatException | OutOfMemoryError | FieldException e) {
+            jsonMap.put("error", e.getMessage());
+        } finally {
+            response.setContentType("application/json;charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            out.print(this.gson.toJson(jsonMap));
+            out.flush();
+        }
     }
 
     /**
