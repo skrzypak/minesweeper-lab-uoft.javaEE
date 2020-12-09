@@ -1,5 +1,13 @@
+/***
+ * Main javascript class
+ */
 class App {
 
+    /***
+     * Execute left click mouse button
+     * @param rowInx field row index
+     * @param colInx field col index
+     */
     static onFieldLeftClick = (rowInx, colInx) => {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
@@ -49,6 +57,11 @@ class App {
         xhr.send(null);
     }
 
+    /***
+     * Execute right click mouse button
+     * @param rowInx field row index
+     * @param colInx field col index
+     */
     static onFieldRightClick = (rowInx, colInx) => {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
@@ -72,6 +85,11 @@ class App {
         xhr.send(null);
     }
 
+    /***
+     * Render board html
+     * @param rows number of rows
+     * @param cols number of cols
+     */
     static renderBoard = (rows, cols) => {
         let baord = document.getElementById("board")
         while (baord.lastElementChild) {
@@ -102,6 +120,10 @@ class App {
         }
     }
 
+    /***
+     * Start new game.
+     * @warning method get last correct input data from cookies
+     */
     init() {
 
         let cXhr = new XMLHttpRequest();

@@ -129,6 +129,7 @@ public class FieldClickServlet extends HttpServlet {
 
     /**
      * Function calling to renderGameResult in GameView class
+     * @return array of index which contain mines
      */
     private ArrayList<Index> getMinesIndex() {
         ArrayList<Index> minesIndex = new ArrayList<>();
