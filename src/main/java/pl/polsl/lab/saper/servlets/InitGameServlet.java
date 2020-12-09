@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.Gson;
+import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
 
 public class InitGameServlet extends HttpServlet {
@@ -26,6 +27,8 @@ public class InitGameServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        PrintWriter out = response.getWriter();
+
         Integer height = Integer.parseInt(request.getParameter("height"));
         Integer width = Integer.parseInt(request.getParameter("width"));
 
@@ -35,7 +38,6 @@ public class InitGameServlet extends HttpServlet {
         Dimensions dm = new Dimensions(TODO.get().getBoardData().getNumOfRows(), TODO.get().getBoardData().getNumOfCols());
         String dmJsonString = this.gson.toJson(dm);
         response.setContentType("application/json;charset=UTF-8");
-        PrintWriter out = response.getWriter();
         out.print(dmJsonString);
         out.flush();
     }
@@ -87,18 +89,18 @@ public class InitGameServlet extends HttpServlet {
             TODO.get().getBoardData().get(new Index(randRow, randCol)).setAsMine();
         }
 
-        countMines(height, width);
+        countMines(TODO.get().getBoardData().getNumOfRows(), TODO.get().getBoardData().getNumOfCols());
     }
 
     /**
      * Function count mines around field and set value to proper filed
-     * @param height board height without border (user input value)
-     * @param width  board width without border (user input value)* @param inx field index object
+     * @param numOfRows board number of rows
+     * @param numOfCols board number of columns
      */
-    private static void countMines(Integer height, Integer width){
+    private static void countMines(Integer numOfRows, Integer numOfCols){
 
-        for(int row = 1; row < height - 1; row++) {
-            for(int col = 1; col < width - 1; col++) {
+        for(int row = 1; row < numOfRows - 1; row++) {
+            for(int col = 1; col < numOfCols - 1; col++) {
                 int num = 0;
                 LinkedList<Index> index = new LinkedList<>();
                 index.add(new Index(row - 1, col - 1));

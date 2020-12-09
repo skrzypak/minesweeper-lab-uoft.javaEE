@@ -1,7 +1,10 @@
 package pl.polsl.lab.saper.servlets;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.json.simple.JSONValue;
 import pl.polsl.lab.saper.exception.FieldException;
+import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
 
 import javax.servlet.ServletException;
@@ -11,6 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.simple.JSONObject;
 
 @WebServlet(name = "FieldClickServlet", urlPatterns = "/fieldClick")
 public class FieldClickServlet extends HttpServlet {
@@ -28,38 +37,154 @@ public class FieldClickServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        Integer row = Integer.parseInt(req.getParameter("row"));
-        Integer col = Integer.parseInt(req.getParameter("col"));
-        String type = req.getParameter("btn");
-        Index inx = new Index(row, col);
-        String respJsonString;
+        Map<String,String> jsonMap = new HashMap<>();
 
-        if(type.equals("left")) {
-            // Set as selected
-            try {
-                TODO.get().setFieldAsSelected(inx);
-                // TODO game status object
-                respJsonString = this.gson.toJson(TODO.get().getNumOfMinesAroundField(inx));
-            } catch (FieldException e) {
-                respJsonString = this.gson.toJson(e);
-            }
-
-        } else if(type.equals("right")) {
-            // Set as mark
-            try {
-                TODO.get().setFieldAsMark(inx);
-                respJsonString = this.gson.toJson(true);
-            } catch (FieldException e) {
-                respJsonString = this.gson.toJson(e);
-            }
-
+        if(!isGameRunning()) {
+            jsonMap.put("error", "Game is not running");
         } else {
-            respJsonString = this.gson.toJson(false);
+
+            Integer row = Integer.parseInt(req.getParameter("row"));
+            Integer col = Integer.parseInt(req.getParameter("col"));
+            String type = req.getParameter("btn");
+            Index inx = new Index(row, col);
+
+            if (type.equals("left")) {
+                // Set as selected
+                try {
+                    TODO.get().setFieldAsSelected(inx);
+                    updateGameStatus(inx);
+
+                    jsonMap.put("numOfMines", TODO.get().getNumOfMinesAroundField(inx).toString());
+                    jsonMap.put("mine", String.valueOf(TODO.get().getInfoAboutMine(inx)));
+
+                } catch (FieldException e) {
+                    jsonMap.put("error", e.getMessage());
+                }
+
+            } else if (type.equals("right")) {
+                // Set as mark
+                try {
+                    if(!TODO.get().fieldSelected(inx)) {
+                        if(TODO.get().getInfoAboutMark(inx)) {
+                            TODO.get().removeFieldMark(inx);
+                        } else {
+                            TODO.get().setFieldAsMark(inx);
+                        }
+                        jsonMap.put("mark", String.valueOf(TODO.get().getInfoAboutMark(inx)));
+                    } else {
+                        jsonMap.put("error", "Field is selected");
+                    }
+                } catch (FieldException e) {
+                    jsonMap.put("error", e.getMessage());
+                }
+
+            } else {
+                jsonMap.put("error", "Invalid button type");
+            }
         }
 
         resp.setContentType("application/json;charset=UTF-8");
+        jsonMap.put("gameStatus", TODO.get().getGameResult().toString());
         PrintWriter out = resp.getWriter();
-        out.print(respJsonString);
+        out.print(this.gson.toJson(jsonMap));
         out.flush();
     }
+
+    // TODO SEPRATE
+
+    /**
+     * Functions update game status
+     * If user selected filed with mine, function set game status as lose in model
+     * If user selected last empty field, function set game status as win in model
+     *
+     * @param inx field index object
+     */
+    private void updateGameStatus(Index inx) {
+        try {
+            if (TODO.get().getInfoAboutMine(inx)) TODO.get().setLose();
+        } catch (FieldException ignored) { }
+
+        if (TODO.get().getFreeFieldCounter() <= 0) TODO.get().setWin();
+    }
+
+    /**
+     * Check if game is running
+     *
+     * @return TRUE if game is running or FALSE if end
+     */
+    public boolean isGameRunning() {
+        return TODO.get().getRunning();
+    }
+
+//    /**
+//     * Function calling to renderGameResult in GameView class
+//     */
+//    private void gameResult() {
+//        ArrayList<Index> minesIndex = new ArrayList<>();
+//        for (int i = 1; i < TODO.get().getNumOfRows() - 1; i++) {
+//            for (int j = 1; j < TODO.get().getNumOfCols() - 1; j++) {
+//                try {
+//                    Index inx = new Index(i, j);
+//                    if (TODO.get().getInfoAboutMine(inx))
+//                        minesIndex.add(inx);
+//                } catch (FieldException ignored) {
+//                }
+//            }
+//        }
+//        // TODO result alert send and show mines
+//    }
+
+//    /**
+//     * Discover recursive all zero mines fields
+//     *
+//     * @param inx field index object
+//     */
+//    private void findUntilNoZeroField(Index inx) {
+//
+//        try {
+//            if (TODO.get().getInfoAboutMine(inx) || TODO.get().fieldSelected(inx)) {
+//                //Field has mine or was selected earlier so end recursive
+//                return;
+//            }
+//        } catch (FieldException e) {
+//            // Field is boarder so end recursive
+//            return;
+//        }
+//
+//        Integer mines = 0;
+//
+//        try {
+//            mines = TODO.get().getNumOfMinesAroundField(inx);
+//        } catch (FieldException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if (mines > 0) {
+//            // Field is no mine but around have samo mine, so set field as selected and end recursive
+//            try {
+//                TODO.get().setFieldAsSelected(inx);
+//            } catch (FieldException ignored) {
+//            }
+//            return;
+//        }
+//
+//        try {
+//            // Field has no mine so set as 0, next call recursive to next fields
+//            TODO.get().setFieldAsSelected(inx);
+//        } catch (FieldException ignored) {
+//        }
+//
+//        int row = inx.getRowIndex();
+//        int col = inx.getColIndex();
+//
+//        findUntilNoZeroField(new Index(row + 1, col - 1));
+//        findUntilNoZeroField(new Index(row + 1, col + 1));
+//        findUntilNoZeroField(new Index(row - 1, col - 1));
+//        findUntilNoZeroField(new Index(row - 1, col + 1));
+//        findUntilNoZeroField(new Index(row + 1, col));
+//        findUntilNoZeroField(new Index(row, col + 1));
+//        findUntilNoZeroField(new Index(row, col - 1));
+//        findUntilNoZeroField(new Index(row - 1, col));
+//
+//    }
 }

@@ -1,32 +1,55 @@
 class App {
 
-    static onFieldClickAsSelect = (rowInx, colInx) => {
+    static onFieldLeftClick = (rowInx, colInx) => {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 let json = xhr.responseText;
                 let data = JSON.parse(json);
                 console.log(data)
-                let f = document.getElementById(`R${rowInx}C${colInx}`)
-                f.classList.remove("no-click");
-                f.classList.remove("no-select");
-                f.classList.add("click-empty");
-                f.innerHTML = "<span>"+data+"</span>";
+                if(data.error === undefined) {
+                    let f = document.getElementById(`R${rowInx}C${colInx}`)
+                    if(data.gameStatus === "NONE" || data.gameStatus === "WIN") {
+                        f.classList.remove("no-click");
+                        f.classList.remove("no-select");
+                        f.classList.add("click-empty");
+                        f.innerHTML = "<span>"+data.numOfMines+"</span>";
+                    } else if(data.gameStatus === "LOSE") {
+                        f.classList.remove("no-click");
+                        f.classList.remove("no-select");
+                        f.classList.add("click-mine");
+                    }
+                    if (data.gameStatus !== "NONE") {
+                        alert(data.gameStatus)
+                    }
+                } else{
+                    alert(data.error)
+                }
+
             }
         }
         xhr.open('GET', `${document.location.href}fieldClick?row=${rowInx}&col=${colInx}&btn=left`, true);
         xhr.send(null);
     }
 
-    static onFieldClickAsMark = (rowInx, colInx) => {
+    static onFieldRightClick = (rowInx, colInx) => {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 let json = xhr.responseText;
                 let data = JSON.parse(json);
                 let f = document.getElementById(`R${rowInx}C${colInx}`)
-                f.classList.remove("no-click");
-                f.classList.add("click-right");
+
+                if(data.error === undefined) {
+                    if(data.mark === "true") {
+                        f.classList.remove("no-click");
+                        f.classList.add("click-right");
+                    } else {
+                        f.classList.remove("click-right");
+                        f.classList.add("no-click");
+                    }
+                }
+            
                 console.log(data)
             }
         }
@@ -64,10 +87,10 @@ class App {
                 // field.style.maxWidth = `${fieldMaxSize}%`
                 field.setAttribute("id", `R${i}C${j}`)
                 field.onclick = () => {
-                    App.onFieldClickAsSelect(i, j)
+                    App.onFieldLeftClick(i, j)
                 }
                 field.oncontextmenu = () => {
-                    App.onFieldClickAsMark(i, j)
+                    App.onFieldRightClick(i, j)
                 }
                 row.appendChild(field)
             }

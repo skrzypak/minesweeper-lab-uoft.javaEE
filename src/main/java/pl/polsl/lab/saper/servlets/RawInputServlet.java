@@ -24,5 +24,13 @@ public class RawInputServlet extends HttpServlet {
         //Response err
     }
 
-
+    /**
+     * Function parse input from String to String[]
+     *
+     * @param input string input from user
+     * @return parsed input data
+     */
+    private String[] parseUserInput(String input) {
+        return input.split(" ");
+    }
 }
