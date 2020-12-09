@@ -6,6 +6,7 @@ class App {
             if (xhr.readyState === 4) {
                 let json = xhr.responseText;
                 let data = JSON.parse(json);
+                console.log(data)
                 if(data.error === undefined) {
                     let f = document.getElementById(`R${rowInx}C${colInx}`)
                     if(data.gameStatus === "NONE" || data.gameStatus === "WIN") {
@@ -13,12 +14,19 @@ class App {
                         f.classList.remove("no-select");
                         f.classList.add("click-empty");
                         f.innerHTML = "<span>"+data.numOfMines+"</span>";
+                        if(data.gameStatus === "WIN")
+                            alert(data.gameStatus)
                     } else if(data.gameStatus === "LOSE") {
-                        f.classList.remove("no-click");
-                        f.classList.remove("no-select");
-                        f.classList.add("click-mine");
-                    }
-                    if (data.gameStatus !== "NONE") {
+                        let mines = JSON.parse(data.mines);
+                        console.log(mines)
+                        mines.map(el => {
+                            let fi = document.getElementById(`R${el.row}C${el.col}`)
+                            fi.classList.remove("no-click");
+                            fi.classList.remove("no-select");
+                            fi.classList.add("click-mine");
+                        })
+                        alert(data.gameStatus)
+                    } else {
                         alert(data.gameStatus)
                     }
                 } else{
@@ -55,6 +63,9 @@ class App {
 
     static renderBoard = (rows, cols) => {
         let baord = document.getElementById("board")
+        while (baord.lastElementChild) {
+            baord.removeChild(baord.lastElementChild);
+        }
         for(let i = 1; i < rows - 1; i++) {
             let row = document.createElement("div")
             row.classList.add("row")
@@ -89,7 +100,7 @@ class App {
                 App.renderBoard(data.height, data.width);
             }
         }
-        xhr.open('GET', `${document.location.href}/InitGame?height=5&width=5`, true);
+        xhr.open('GET', `${document.location.href}InitGame?height=5&width=5`, true);
         xhr.send(null);
     }
 }

@@ -7,16 +7,8 @@
         <servlet-name>InitGame</servlet-name>
         <servlet-class>pl.polsl.lab.saper.servlets.InitGameServlet</servlet-class>
     </servlet>
-    <servlet>
-        <servlet-name>RawInput</servlet-name>
-        <servlet-class>pl.polsl.lab.saper.servlets.RawInputServlet</servlet-class>
-    </servlet>
     <servlet-mapping>
         <servlet-name>InitGame</servlet-name>
         <url-pattern>/InitGame</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>RawInput</servlet-name>
-        <url-pattern>/RawInput</url-pattern>
     </servlet-mapping>
 </web-app>

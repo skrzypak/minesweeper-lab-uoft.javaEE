@@ -14,12 +14,19 @@ class App {
                         f.classList.remove("no-select");
                         f.classList.add("click-empty");
                         f.innerHTML = "<span>"+data.numOfMines+"</span>";
+                        if(data.gameStatus === "WIN")
+                            alert(data.gameStatus)
                     } else if(data.gameStatus === "LOSE") {
-                        f.classList.remove("no-click");
-                        f.classList.remove("no-select");
-                        f.classList.add("click-mine");
-                    }
-                    if (data.gameStatus !== "NONE") {
+                        let mines = JSON.parse(data.mines);
+                        console.log(mines)
+                        mines.map(el => {
+                            let fi = document.getElementById(`R${el.row}C${el.col}`)
+                            fi.classList.remove("no-click");
+                            fi.classList.remove("no-select");
+                            fi.classList.add("click-mine");
+                        })
+                        alert(data.gameStatus)
+                    } else {
                         alert(data.gameStatus)
                     }
                 } else{
@@ -39,7 +46,6 @@ class App {
                 let json = xhr.responseText;
                 let data = JSON.parse(json);
                 let f = document.getElementById(`R${rowInx}C${colInx}`)
-
                 if(data.error === undefined) {
                     if(data.mark === "true") {
                         f.classList.remove("no-click");
@@ -49,8 +55,6 @@ class App {
                         f.classList.add("no-click");
                     }
                 }
-            
-                console.log(data)
             }
         }
         xhr.open('GET', `${document.location.href}fieldClick?row=${rowInx}&col=${colInx}&btn=right`, true);
@@ -59,16 +63,9 @@ class App {
 
     static renderBoard = (rows, cols) => {
         let baord = document.getElementById("board")
-        // let boardHeight = document.getElementById("board").style.height;
-        // let boardWidth = document.getElementById("board").style.width;
-        //
-        // let boardMinSize = boardHeight > boardWidth ? boardWidth : boardHeight;
-        // let fieldSize = boardMinSize / (rows - 2)
-        //
-        // let maxNumIndex = rows > cols ? cols - 2: rows - 2;
-        // let fieldMaxSize = 100 / maxNumIndex
-
-
+        while (baord.lastElementChild) {
+            baord.removeChild(baord.lastElementChild);
+        }
         for(let i = 1; i < rows - 1; i++) {
             let row = document.createElement("div")
             row.classList.add("row")
@@ -78,13 +75,9 @@ class App {
                 field.classList.add("field")
                 field.classList.add("no-click")
                 field.classList.add("no-select")
-                // field.style.height = `${fieldSize}px`
-                // field.style.width = `${fieldSize}px`
                 field.style.lineHeight = `50px`
                 field.style.height = `50px`
                 field.style.width = `50px`
-                // field.style.maxHeight = `${fieldMaxSize}%`
-                // field.style.maxWidth = `${fieldMaxSize}%`
                 field.setAttribute("id", `R${i}C${j}`)
                 field.onclick = () => {
                     App.onFieldLeftClick(i, j)
@@ -107,7 +100,7 @@ class App {
                 App.renderBoard(data.height, data.width);
             }
         }
-        xhr.open('GET', `${document.location.href}/InitGame?height=5&width=5`, true);
+        xhr.open('GET', `${document.location.href}InitGame?height=5&width=5`, true);
         xhr.send(null);
     }
 }

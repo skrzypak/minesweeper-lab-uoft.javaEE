@@ -1,8 +1,6 @@
 package pl.polsl.lab.saper.servlets;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.json.simple.JSONValue;
 import pl.polsl.lab.saper.exception.FieldException;
 import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
@@ -14,17 +12,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.json.simple.JSONObject;
 
 @WebServlet(name = "FieldClickServlet", urlPatterns = "/fieldClick")
 public class FieldClickServlet extends HttpServlet {
 
     private final Gson gson = new Gson();
+    private ArrayList<Index> tmp;
 
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -54,11 +50,24 @@ public class FieldClickServlet extends HttpServlet {
                     TODO.get().setFieldAsSelected(inx);
                     updateGameStatus(inx);
 
+                    if(TODO.get().getNumOfMinesAroundField(inx) == 0) {
+                        this.tmp = new ArrayList<>();
+                        findUntilNoZeroField(inx);
+                        System.out.println(this.tmp);
+                        jsonMap.put("zero", this.gson.toJson(this.tmp));
+                    }
+
                     jsonMap.put("numOfMines", TODO.get().getNumOfMinesAroundField(inx).toString());
+
                     jsonMap.put("mine", String.valueOf(TODO.get().getInfoAboutMine(inx)));
 
                 } catch (FieldException e) {
                     jsonMap.put("error", e.getMessage());
+                }
+
+                if(TODO.get().getGameResult() == IEnumGame.GameResult.LOSE) {
+                    ArrayList<Index> arr = getMinesIndex();
+                    jsonMap.put("mines", this.gson.toJson(arr));
                 }
 
             } else if (type.equals("right")) {
@@ -90,8 +99,6 @@ public class FieldClickServlet extends HttpServlet {
         out.flush();
     }
 
-    // TODO SEPRATE
-
     /**
      * Functions update game status
      * If user selected filed with mine, function set game status as lose in model
@@ -112,79 +119,80 @@ public class FieldClickServlet extends HttpServlet {
      *
      * @return TRUE if game is running or FALSE if end
      */
-    public boolean isGameRunning() {
+    private boolean isGameRunning() {
         return TODO.get().getRunning();
     }
 
-//    /**
-//     * Function calling to renderGameResult in GameView class
-//     */
-//    private void gameResult() {
-//        ArrayList<Index> minesIndex = new ArrayList<>();
-//        for (int i = 1; i < TODO.get().getNumOfRows() - 1; i++) {
-//            for (int j = 1; j < TODO.get().getNumOfCols() - 1; j++) {
-//                try {
-//                    Index inx = new Index(i, j);
-//                    if (TODO.get().getInfoAboutMine(inx))
-//                        minesIndex.add(inx);
-//                } catch (FieldException ignored) {
-//                }
-//            }
-//        }
-//        // TODO result alert send and show mines
-//    }
+    /**
+     * Function calling to renderGameResult in GameView class
+     */
+    private ArrayList<Index> getMinesIndex() {
+        ArrayList<Index> minesIndex = new ArrayList<>();
+        for (int i = 1; i < TODO.get().getNumOfRows() - 1; i++) {
+            for (int j = 1; j < TODO.get().getNumOfCols() - 1; j++) {
+                try {
+                    Index inx = new Index(i, j);
+                    if (TODO.get().getInfoAboutMine(inx))
+                        minesIndex.add(inx);
+                } catch (FieldException ignored) { }
+            }
+        }
+        return minesIndex;
+    }
 
-//    /**
-//     * Discover recursive all zero mines fields
-//     *
-//     * @param inx field index object
-//     */
-//    private void findUntilNoZeroField(Index inx) {
-//
-//        try {
-//            if (TODO.get().getInfoAboutMine(inx) || TODO.get().fieldSelected(inx)) {
-//                //Field has mine or was selected earlier so end recursive
-//                return;
-//            }
-//        } catch (FieldException e) {
-//            // Field is boarder so end recursive
-//            return;
-//        }
-//
-//        Integer mines = 0;
-//
-//        try {
-//            mines = TODO.get().getNumOfMinesAroundField(inx);
-//        } catch (FieldException e) {
-//            e.printStackTrace();
-//        }
-//
-//        if (mines > 0) {
-//            // Field is no mine but around have samo mine, so set field as selected and end recursive
-//            try {
-//                TODO.get().setFieldAsSelected(inx);
-//            } catch (FieldException ignored) {
-//            }
-//            return;
-//        }
-//
-//        try {
-//            // Field has no mine so set as 0, next call recursive to next fields
-//            TODO.get().setFieldAsSelected(inx);
-//        } catch (FieldException ignored) {
-//        }
-//
-//        int row = inx.getRowIndex();
-//        int col = inx.getColIndex();
-//
-//        findUntilNoZeroField(new Index(row + 1, col - 1));
-//        findUntilNoZeroField(new Index(row + 1, col + 1));
-//        findUntilNoZeroField(new Index(row - 1, col - 1));
-//        findUntilNoZeroField(new Index(row - 1, col + 1));
-//        findUntilNoZeroField(new Index(row + 1, col));
-//        findUntilNoZeroField(new Index(row, col + 1));
-//        findUntilNoZeroField(new Index(row, col - 1));
-//        findUntilNoZeroField(new Index(row - 1, col));
-//
-//    }
+    /**
+     * Discover recursive all zero mines fields
+     * @param inx field index object
+     */
+    private void findUntilNoZeroField(Index inx) {
+
+        try {
+            if (TODO.get().getInfoAboutMine(inx) || TODO.get().fieldSelected(inx)) {
+                //Field has mine or was selected earlier so end recursive
+                return;
+            }
+        } catch (FieldException e) {
+            // Field is boarder so end recursive
+            return;
+        }
+
+        Integer mines = 0;
+
+        try {
+            mines = TODO.get().getNumOfMinesAroundField(inx);
+        } catch (FieldException e) {
+            e.printStackTrace();
+        }
+
+        if (mines > 0) {
+            // Field is no mine but around have samo mine, so set field as selected and end recursive
+            try {
+                TODO.get().setFieldAsSelected(inx);
+                tmp.add(inx);
+            } catch (FieldException ignored) {
+            }
+            return;
+        }
+
+        try {
+            // Field has no mine so set as 0, next call recursive to next fields
+            TODO.get().setFieldAsSelected(inx);
+            tmp.add(inx);
+        } catch (FieldException ignored) {
+        }
+
+        int row = inx.getRowIndex();
+        int col = inx.getColIndex();
+
+        findUntilNoZeroField(new Index(row + 1, col - 1));
+        findUntilNoZeroField(new Index(row + 1, col + 1));
+        findUntilNoZeroField(new Index(row - 1, col - 1));
+        findUntilNoZeroField(new Index(row - 1, col + 1));
+        findUntilNoZeroField(new Index(row + 1, col));
+        findUntilNoZeroField(new Index(row, col + 1));
+        findUntilNoZeroField(new Index(row, col - 1));
+        findUntilNoZeroField(new Index(row - 1, col));
+
+    }
+
 }

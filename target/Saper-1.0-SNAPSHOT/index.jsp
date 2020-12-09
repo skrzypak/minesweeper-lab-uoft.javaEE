@@ -16,23 +16,14 @@
         <div id="content">
             <div id="board" oncontextmenu="return false">
             </div>
-            <div id="buttonPanel">
-                <form action="InitGame" id="fInputMenu">
-                    <input type="submit" value="Start new game" />
-                </form>
-                <form action="RawInput" id="fInputRaw">
-                    <label style="width: 100%">
-                        <input type="text" id="inputRaw" />
-                    </label>
-                </form>
-            </div>
         </div>
     </div>
 
     <script src="App.js"></script>
     <script>
+        let app;
         window.onload = () => {
-            let app = new App()
+            app = new App()
             app.init();
         }
     </script>

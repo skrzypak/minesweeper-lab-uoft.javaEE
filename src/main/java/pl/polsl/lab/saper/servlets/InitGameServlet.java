@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.Gson;
-import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
 
 public class InitGameServlet extends HttpServlet {
@@ -32,6 +31,7 @@ public class InitGameServlet extends HttpServlet {
         Integer height = Integer.parseInt(request.getParameter("height"));
         Integer width = Integer.parseInt(request.getParameter("width"));
 
+        TODO.clear();
         TODO.set(height, width);
         randomMines(height, width);
 
