@@ -10,9 +10,9 @@ import pl.polsl.lab.saper.exception.FieldException;
  */
 public class Game {
 
-    private GameBoard gameBoard;            // Contains game fields
-    private Integer freeFieldCounter;       // Number of no selected field by player with no mine, if 0 player win
-    private Boolean running;                // Game state (1) game running, otherwise 0
+    private GameBoard gameBoard;             // Contains game fields
+    private Integer freeFieldCounter;        // Number of no selected field by player with no mine, if 0 player win
+    private Boolean running;                 // Game state (1) game running, otherwise 0
     private IEnumGame.GameResult gameResult; // Contain info about player result, used to display correct result
 
     /**
