@@ -215,6 +215,16 @@ public class FieldClickServlet extends HttpServlet {
         throw new SQLException("Not found AROUND_MINES param in FIELDS database INDEX: " + inx.toString());
     }
 
+    private void decrementFreeFieldCounter(Integer id) throws SQLException {
+        Integer counter = getFreeFieldCounter(id);
+        counter--;
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        statement.executeUpdate("UPDATE GAMES SET "
+                + "FREE_FIELD_COUNTER=" + counter + " "
+                + "WHERE ID="+ id
+                + ";");
+    }
+
     private Integer getFreeFieldCounter(Integer id) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         ResultSet rs = statement.executeQuery("SELECT FREE_FIELD_COUNTER FROM GAMES "
@@ -222,6 +232,7 @@ public class FieldClickServlet extends HttpServlet {
                 + ";");
 
         if (rs.next()) {
+            System.out.println();
             return rs.getInt("FREE_FIELD_COUNTER");
         }
 
@@ -316,6 +327,9 @@ public class FieldClickServlet extends HttpServlet {
             if (getInfoAboutMine(id, inx)) {
                 setLose(id);
             }
+
+            decrementFreeFieldCounter(id);
+
             if (getFreeFieldCounter(id) <= 0) {
                 setWin(id);
             }

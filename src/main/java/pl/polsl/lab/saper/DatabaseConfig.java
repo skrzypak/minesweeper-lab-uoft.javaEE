@@ -28,7 +28,6 @@ public class DatabaseConfig {
         DriverManager.registerDriver(new org.h2.Driver());
         String url = "jdbc:h2:mem:db";
         conn = DriverManager.getConnection(url);
-        System.out.println("Connection to H2 has been established.");
         if (next) {
             truncateTables();
         } else {
