@@ -1,8 +1,9 @@
 package pl.polsl.lab.saper;
+import pl.polsl.lab.saper.jdbc.Create;
+import pl.polsl.lab.saper.jdbc.Delete;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Class define global game model
@@ -29,50 +30,10 @@ public class DatabaseConfig {
         String url = "jdbc:h2:mem:db";
         conn = DriverManager.getConnection(url);
         if (next) {
-            truncateTables();
+            Delete.truncateTables();
         } else {
-            createTables();
+            Create.createTables();
         }
-    }
-
-    /**
-     * Create tables in database
-     * @throws SQLException err syntax or connection
-     */
-    private static void createTables() throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-
-        statement.executeUpdate("CREATE TABLE GAMES"
-                + "(ID INTEGER PRIMARY KEY, RESULT VARCHAR(10), "
-                + "FREE_FIELD_COUNTER INTEGER);");
-        statement.executeUpdate("CREATE TABLE GAMES_BOARD"
-                + "(GAME_ID INTEGER PRIMARY KEY, NUM_OF_ROWS INTEGER, "
-                + "NUM_OF_COLS INTEGER);");
-        statement.executeUpdate("CREATE TABLE FIELDS"
-                + "(ID INTEGER PRIMARY KEY AUTO_INCREMENT, GAME_ID INTEGER, ROW_INX INTEGER, COL_INX INTEGER, MINE BOOLEAN, MARKED BOOLEAN, "
-                + "SELECTED BOOLEAN, AROUND_MINES INTEGER);");
-    }
-
-    /**
-     * Drops tables in database
-     * @throws SQLException err syntax or connection
-     */
-    static private void dropsTables() throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("DROP TABLE FIELDS;");
-        statement.executeUpdate("DROP TABLE GAMES_BOARD;");
-        statement.executeUpdate("DROP TABLE GAMES;");
-    }
-
-    /**
-     * Truncate tables in database
-     * @throws SQLException err syntax or connection
-     */
-    static private void truncateTables() throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("TRUNCATE TABLE FIELDS;");
-        statement.executeUpdate("TRUNCATE TABLE GAMES_BOARD;");
-        statement.executeUpdate("TRUNCATE TABLE GAMES;");
     }
 
     /**
@@ -88,7 +49,7 @@ public class DatabaseConfig {
      * */
     static public void close() throws SQLException {
         if (conn != null) {
-            dropsTables();
+            Delete.dropsTables();
             conn.close();
         }
     }

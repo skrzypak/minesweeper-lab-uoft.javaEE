@@ -1,4 +1,158 @@
 package pl.polsl.lab.saper.jdbc;
 
+import pl.polsl.lab.saper.DatabaseConfig;
+import pl.polsl.lab.saper.exception.FieldException;
+import pl.polsl.lab.saper.model.IEnumGame;
+import pl.polsl.lab.saper.model.Index;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
 public class Read {
+    public static boolean getInfoAboutMark(Integer id, Index inx) throws FieldException, SQLException {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        ResultSet rs = statement.executeQuery("SELECT MARKED FROM FIELDS "
+                + "WHERE GAME_ID="+ id + " AND "
+                + "ROW_INX="+inx.getRowIndex()+" AND "
+                + "COL_INX="+inx.getColIndex()
+                + ";");
+
+        if (rs.next()) {
+            return rs.getBoolean("MARKED");
+        }
+
+        throw new SQLException("Not found MARKED param in FIELDS database INDEX: " + inx.toString());
+    }
+
+    public static boolean fieldSelected(Integer id, Index inx) throws FieldException, SQLException {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        ResultSet rs = statement.executeQuery("SELECT SELECTED FROM FIELDS "
+                + "WHERE GAME_ID="+ id + " AND "
+                + "ROW_INX="+inx.getRowIndex()+" AND "
+                + "COL_INX="+inx.getColIndex()
+                + ";");
+
+        if (rs.next()) {
+            return rs.getBoolean("SELECTED");
+        }
+
+        throw new SQLException("Not found SELECTED param in FIELDS database INDEX: " + inx.toString());
+    }
+
+    public static boolean getInfoAboutMine(Integer id, Index inx) throws FieldException, SQLException {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        ResultSet rs = statement.executeQuery("SELECT MINE FROM FIELDS "
+                + "WHERE GAME_ID="+ id + " AND "
+                + "ROW_INX="+inx.getRowIndex()+" AND "
+                + "COL_INX="+inx.getColIndex()
+                + ";");
+
+        if (rs.next()) {
+            return rs.getBoolean("MINE");
+        }
+
+        throw new SQLException("Not found MINE param in FIELDS database INDEX: " + inx.toString());
+    }
+
+    public static Integer getNumOfMinesAroundField(Integer id, Index inx) throws FieldException, SQLException {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        ResultSet rs = statement.executeQuery("SELECT AROUND_MINES FROM FIELDS "
+                + "WHERE GAME_ID="+ id + " AND "
+                + "ROW_INX="+inx.getRowIndex()+" AND "
+                + "COL_INX="+inx.getColIndex()
+                + ";");
+
+        if (rs.next()) {
+            return rs.getInt("AROUND_MINES");
+        }
+
+        throw new SQLException("Not found AROUND_MINES param in FIELDS database INDEX: " + inx.toString());
+    }
+
+    public static Integer getFreeFieldCounter(Integer id) throws SQLException {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        ResultSet rs = statement.executeQuery("SELECT FREE_FIELD_COUNTER FROM GAMES "
+                + "WHERE ID="+ id
+                + ";");
+
+        if (rs.next()) {
+            System.out.println();
+            return rs.getInt("FREE_FIELD_COUNTER");
+        }
+
+        throw new SQLException("Not found FREE_FIELD_COUNTER param in GAMES ID: " + id);
+    }
+
+    public static int getNumOfCols(Integer id) throws SQLException {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        ResultSet rs = statement.executeQuery("SELECT NUM_OF_COLS FROM GAMES_BOARD "
+                + "WHERE GAME_ID="+ id
+                + ";");
+
+        if (rs.next()) {
+            return rs.getInt("NUM_OF_COLS");
+        }
+
+        throw new SQLException("Not found NUM_OF_COLS param in GAMES_BOARDS GAME_ID: " + id);
+    }
+
+    public static int getNumOfRows(Integer id) throws SQLException {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        ResultSet rs = statement.executeQuery("SELECT NUM_OF_ROWS FROM GAMES_BOARD "
+                + "WHERE GAME_ID="+ id
+                + ";");
+
+        if (rs.next()) {
+            return rs.getInt("NUM_OF_ROWS");
+        }
+
+        throw new SQLException("Not found NUM_OF_ROWS param in GAMES_BOARDS GAME_ID: " + id);
+    }
+
+    public static IEnumGame.GameResult getGameResult(Integer id) throws SQLException  {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        ResultSet rs = statement.executeQuery("SELECT RESULT FROM GAMES "
+                + "WHERE ID="+ id
+                + ";");
+
+        if (rs.next()) {
+            if(rs.getString("RESULT").equals("NONE"))
+                return IEnumGame.GameResult.NONE;
+
+            if(rs.getString("RESULT").equals("LOSE"))
+                return IEnumGame.GameResult.LOSE;
+
+            if(rs.getString("RESULT").equals("WIN"))
+                return IEnumGame.GameResult.WIN;
+
+            if(rs.getString("RESULT").equals("CANCELED"))
+                return IEnumGame.GameResult.CANCELED;
+        }
+
+        throw new SQLException("Not found RESULT param in GAMES ID: " + id);
+    }
+
+    /**
+     * Get all fields index that contains mines
+     * @param id game key id
+     * @return array list
+     */
+    public static ArrayList<Index> getMinesIndex(Integer id) throws SQLException {
+        ArrayList<Index> minesIndex = new ArrayList<>();
+
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        ResultSet rs = statement.executeQuery("SELECT ROW_INX, COL_INX FROM FIELDS "
+                + "WHERE GAME_ID="+ id + " AND "
+                + "MINE=true "
+                + "GROUP BY ID;");
+
+        while (rs.next()) {
+            Index inx = new Index(rs.getInt("ROW_INX"), rs.getInt("COL_INX"));
+            minesIndex.add(inx);
+        }
+
+        return minesIndex;
+    }
 }

@@ -1,8 +1,10 @@
 package pl.polsl.lab.saper.servlets;
 
 import com.google.gson.Gson;
-import pl.polsl.lab.saper.DatabaseConfig;
 import pl.polsl.lab.saper.exception.FieldException;
+import pl.polsl.lab.saper.jdbc.Delete;
+import pl.polsl.lab.saper.jdbc.Read;
+import pl.polsl.lab.saper.jdbc.Update;
 import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
 
@@ -13,9 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,21 +58,18 @@ public class FieldClickServlet extends HttpServlet {
                     // Set as selected
                     try {
 
-                        if(getNumOfMinesAroundField(id, inx) == 0) {
+                        if(Read.getNumOfMinesAroundField(id, inx) == 0) {
                             Map<String,Integer> tmp = new HashMap<>();
                             findUntilNoZeroField(tmp, inx, id);
-
-
-
                             jsonMap.put("zero", this.gson.toJson(tmp));
                         }
 
-                        setFieldAsSelected(id, inx);
+                        Update.setFieldAsSelected(id, inx);
                         updateGameStatus(id, inx);
 
-                        jsonMap.put("numOfMines", getNumOfMinesAroundField(id, inx).toString());
+                        jsonMap.put("numOfMines", Read.getNumOfMinesAroundField(id, inx).toString());
 
-                        jsonMap.put("mine", String.valueOf(getInfoAboutMine(id, inx)));
+                        jsonMap.put("mine", String.valueOf(Read.getInfoAboutMine(id, inx)));
 
                     } catch (SQLException | FieldException e) {
                         jsonMap.put("error", e.getMessage());
@@ -80,8 +77,8 @@ public class FieldClickServlet extends HttpServlet {
                     }
 
                     try {
-                        if(getGameResult(id) == IEnumGame.GameResult.LOSE) {
-                            ArrayList<Index> arr = getMinesIndex(0);
+                        if(Read.getGameResult(id) == IEnumGame.GameResult.LOSE) {
+                            ArrayList<Index> arr = Read.getMinesIndex(id);
                             jsonMap.put("mines", this.gson.toJson(arr));
                         }
                     } catch (SQLException throwables) {
@@ -92,13 +89,13 @@ public class FieldClickServlet extends HttpServlet {
                 } else if (type.equals("right")) {
                     // Set as mark
                     try {
-                        if(!fieldSelected(id, inx)) {
-                            if(getInfoAboutMark(id, inx)) {
-                                removeFieldMark(id, inx);
+                        if(!Read.fieldSelected(id, inx)) {
+                            if(Read.getInfoAboutMark(id, inx)) {
+                                Delete.removeFieldMark(id, inx);
                             } else {
-                                setFieldAsMark(id, inx);
+                                Update.setFieldAsMark(id, inx);
                             }
-                            jsonMap.put("mark", String.valueOf(getInfoAboutMark(id, inx)));
+                            jsonMap.put("mark", String.valueOf(Read.getInfoAboutMark(id, inx)));
                         } else {
                             jsonMap.put("error", "Field is selected");
                         }
@@ -118,7 +115,7 @@ public class FieldClickServlet extends HttpServlet {
 
         resp.setContentType("application/json;charset=UTF-8");
         try {
-            jsonMap.put("gameStatus", getGameResult(id).toString());
+            jsonMap.put("gameStatus", Read.getGameResult(id).toString());
         } catch (SQLException throwables) {
             jsonMap.put("error", throwables.getMessage());
             throwables.printStackTrace();
@@ -128,215 +125,13 @@ public class FieldClickServlet extends HttpServlet {
         out.flush();
     }
 
-    private void setFieldAsMark(Integer id, Index inx) throws FieldException, SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE FIELDS SET "
-                + "MARKED=true "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
-                + ";");
-    }
-
-    private void setFieldAsSelected(Integer id, Index inx) throws FieldException, SQLException {
-        if(!fieldSelected(id, inx)) {
-            Statement statement = DatabaseConfig.getConn().createStatement();
-            statement.executeUpdate("UPDATE FIELDS SET "
-                    + "SELECTED=true "
-                    + "WHERE GAME_ID="+ id + " AND "
-                    + "ROW_INX="+inx.getRowIndex()+" AND "
-                    + "COL_INX="+inx.getColIndex()
-                    + ";");
-            decrementFreeFieldCounter(id);
-        }
-    }
-
-    private void removeFieldMark(Integer id, Index inx) throws FieldException, SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE FIELDS SET "
-                + "MARKED=false "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
-                + ";");
-    }
-
-    private boolean getInfoAboutMark(Integer id, Index inx) throws FieldException, SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT MARKED FROM FIELDS "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
-                + ";");
-
-        if (rs.next()) {
-            return rs.getBoolean("MARKED");
-        }
-
-        throw new SQLException("Not found MARKED param in FIELDS database INDEX: " + inx.toString());
-    }
-
-    private boolean fieldSelected(Integer id, Index inx) throws FieldException, SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT SELECTED FROM FIELDS "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
-                + ";");
-
-        if (rs.next()) {
-            return rs.getBoolean("SELECTED");
-        }
-
-        throw new SQLException("Not found SELECTED param in FIELDS database INDEX: " + inx.toString());
-    }
-
-    private boolean getInfoAboutMine(Integer id, Index inx) throws FieldException, SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT MINE FROM FIELDS "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
-                + ";");
-
-        if (rs.next()) {
-            return rs.getBoolean("MINE");
-        }
-
-        throw new SQLException("Not found MINE param in FIELDS database INDEX: " + inx.toString());
-    }
-
-    private Integer getNumOfMinesAroundField(Integer id, Index inx) throws FieldException, SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT AROUND_MINES FROM FIELDS "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
-                + ";");
-
-        if (rs.next()) {
-            return rs.getInt("AROUND_MINES");
-        }
-
-        throw new SQLException("Not found AROUND_MINES param in FIELDS database INDEX: " + inx.toString());
-    }
-
-    private void decrementFreeFieldCounter(Integer id) throws SQLException {
-        Integer counter = getFreeFieldCounter(id);
-        counter--;
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE GAMES SET "
-                + "FREE_FIELD_COUNTER=" + counter + " "
-                + "WHERE ID="+ id
-                + ";");
-    }
-
-    private Integer getFreeFieldCounter(Integer id) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT FREE_FIELD_COUNTER FROM GAMES "
-                + "WHERE ID="+ id
-                + ";");
-
-        if (rs.next()) {
-            System.out.println();
-            return rs.getInt("FREE_FIELD_COUNTER");
-        }
-
-        throw new SQLException("Not found FREE_FIELD_COUNTER param in GAMES ID: " + id);
-    }
-
-    private int getNumOfCols(Integer id) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT NUM_OF_COLS FROM GAMES_BOARD "
-                + "WHERE GAME_ID="+ id
-                + ";");
-
-        if (rs.next()) {
-            return rs.getInt("NUM_OF_COLS");
-        }
-
-        throw new SQLException("Not found NUM_OF_COLS param in GAMES_BOARDS GAME_ID: " + id);
-    }
-
-    private int getNumOfRows(Integer id) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT NUM_OF_ROWS FROM GAMES_BOARD "
-                + "WHERE GAME_ID="+ id
-                + ";");
-
-        if (rs.next()) {
-            return rs.getInt("NUM_OF_ROWS");
-        }
-
-        throw new SQLException("Not found NUM_OF_ROWS param in GAMES_BOARDS GAME_ID: " + id);
-    }
-
-    private void setWin(Integer id) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE GAMES SET "
-                + "RESULT=" + "'"  + IEnumGame.GameResult.WIN.toString() + "'"  + " "
-                + "WHERE ID="+ id
-                + ";");
-    }
-
-    private void setLose(Integer id) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE GAMES SET "
-                + "RESULT=" + "'"  + IEnumGame.GameResult.LOSE.toString() + "'"  + " "
-                + "WHERE ID="+ id
-                + ";");
-    }
-
-    private IEnumGame.GameResult getGameResult(Integer id) throws SQLException  {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT RESULT FROM GAMES "
-                + "WHERE ID="+ id
-                + ";");
-
-        if (rs.next()) {
-            if(rs.getString("RESULT").equals("NONE"))
-                return IEnumGame.GameResult.NONE;
-
-            if(rs.getString("RESULT").equals("LOSE"))
-                return IEnumGame.GameResult.LOSE;
-
-            if(rs.getString("RESULT").equals("WIN"))
-                return IEnumGame.GameResult.WIN;
-
-            if(rs.getString("RESULT").equals("CANCELED"))
-                return IEnumGame.GameResult.CANCELED;
-        }
-
-        throw new SQLException("Not found RESULT param in GAMES ID: " + id);
-    }
-
-    /**
-     * Function calling to renderGameResult in GameView class
-     * @param id game key id
-     * @return array of index which contain mines
-     */
-    private ArrayList<Index> getMinesIndex(Integer id) throws SQLException {
-        // TODO
-        ArrayList<Index> minesIndex = new ArrayList<>();
-        for (int i = 1; i < getNumOfRows(id) - 1; i++) {
-            for (int j = 1; j < getNumOfCols(id) - 1; j++) {
-                try {
-                    Index inx = new Index(i, j);
-                    if (getInfoAboutMine(id, inx))
-                        minesIndex.add(inx);
-                } catch (FieldException ignore) { }
-            }
-        }
-        return minesIndex;
-    }
-
     /**
      * Check if game is running
      *
      * @return TRUE if game is running or FALSE if end
      */
     private boolean isGameRunning(Integer id) throws SQLException {
-        IEnumGame.GameResult r = getGameResult(id);
+        IEnumGame.GameResult r = Read.getGameResult(id);
         return r == IEnumGame.GameResult.NONE;
     }
 
@@ -350,11 +145,11 @@ public class FieldClickServlet extends HttpServlet {
      */
     private void updateGameStatus(Integer id, Index inx) throws SQLException {
         try {
-            if (getInfoAboutMine(id, inx)) {
-                setLose(id);
+            if (Read.getInfoAboutMine(id, inx)) {
+                Update.setLose(id);
             }
-            if (getFreeFieldCounter(id) <= 0) {
-                setWin(id);
+            if (Read.getFreeFieldCounter(id) <= 0) {
+                Update.setWin(id);
             }
         } catch (FieldException ignored) { }
     }
@@ -369,7 +164,7 @@ public class FieldClickServlet extends HttpServlet {
 
         try {
             isCorrectField(id, inx);
-            if (getInfoAboutMine(id, inx) || fieldSelected(id, inx)) {
+            if (Read.getInfoAboutMine(id, inx) || Read.fieldSelected(id, inx)) {
                 //Field has mine or was selected earlier so end recursive
                 return;
             }
@@ -382,14 +177,14 @@ public class FieldClickServlet extends HttpServlet {
 
         try {
             isCorrectField(id, inx);
-            mines = getNumOfMinesAroundField(id, inx);
+            mines = Read.getNumOfMinesAroundField(id, inx);
         } catch (FieldException | SQLException ignore) { }
 
         if (mines > 0) {
             // Field is no mine but around have samo mine, so set field as selected and end recursive
             try {
                 isCorrectField(id, inx);
-                setFieldAsSelected(id, inx);
+                Update.setFieldAsSelected(id, inx);
             } catch (FieldException | SQLException ignore) { }
             tmp.put(this.gson.toJson(inx), mines);
             return;
@@ -398,7 +193,7 @@ public class FieldClickServlet extends HttpServlet {
         // Field has no mine so set as 0, next call recursive to next fields
         try {
             isCorrectField(id, inx);
-            setFieldAsSelected(id, inx);
+            Update.setFieldAsSelected(id, inx);
         } catch (FieldException | SQLException ignore) { }
         tmp.put(this.gson.toJson(inx), 0);
 
@@ -422,9 +217,9 @@ public class FieldClickServlet extends HttpServlet {
      * @param inx field index object
      */
     public void isCorrectField(Integer id, Index inx) throws FieldException, SQLException {
-        if (inx.getRowIndex() <= 0 || inx.getRowIndex() > getNumOfRows(id) - 2)
+        if (inx.getRowIndex() <= 0 || inx.getRowIndex() > Read.getNumOfRows(id) - 2)
             throw new FieldException("Invalid row index");
-        if (inx.getColIndex() <= 0 || inx.getColIndex() > getNumOfCols(id) - 2)
+        if (inx.getColIndex() <= 0 || inx.getColIndex() > Read.getNumOfCols(id) - 2)
             throw new FieldException("Invalid column index");
     }
 
