@@ -24,11 +24,16 @@ public class DatabaseConfig {
      * @throws SQLException when detect connection err to databse
      * */
     static public void set() throws SQLException {
+        boolean next = conn != null;
         DriverManager.registerDriver(new org.h2.Driver());
         String url = "jdbc:h2:mem:db";
         conn = DriverManager.getConnection(url);
         System.out.println("Connection to H2 has been established.");
-        createTables();
+        if (next) {
+            truncateTables();
+        } else {
+            createTables();
+        }
     }
 
     /**
@@ -61,6 +66,17 @@ public class DatabaseConfig {
     }
 
     /**
+     * Truncate tables in database
+     * @throws SQLException err syntax or connection
+     */
+    static private void truncateTables() throws SQLException {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        statement.executeUpdate("TRUNCATE TABLE FIELDS;");
+        statement.executeUpdate("TRUNCATE TABLE GAMES_BOARD;");
+        statement.executeUpdate("TRUNCATE TABLE GAMES;");
+    }
+
+    /**
      * Get connection to database
      * @return connection to database
      * */
@@ -73,6 +89,7 @@ public class DatabaseConfig {
      * */
     static public void close() throws SQLException {
         if (conn != null) {
+            dropsTables();
             conn.close();
         }
     }
