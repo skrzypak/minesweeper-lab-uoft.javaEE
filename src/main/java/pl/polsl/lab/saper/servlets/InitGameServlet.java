@@ -6,6 +6,10 @@ import pl.polsl.lab.saper.model.Dimensions;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -45,6 +49,26 @@ public class InitGameServlet extends HttpServlet {
             Content.clear();
             Content.set(height, width);
             randomMines(height, width);
+
+            //
+            Connection conn = null;
+            try {
+                DriverManager.registerDriver(new org.h2.Driver());
+                String url = "jdbc:h2:mem:db";
+                conn = DriverManager.getConnection(url);
+                System.out.println("Connection to H2 has been established.");
+            } catch (SQLException | NullPointerException e) {
+                System.out.println("ERROR: " + e.getMessage());
+            } finally {
+                try {
+                    if (conn != null) {
+                        conn.close();
+                    }
+                } catch (SQLException e) {
+                    System.out.println("ERROR: " + e.getMessage());
+                }
+            }
+            //
 
             Dimensions dm = new Dimensions(Content.get().getBoardData().getNumOfRows(), Content.get().getBoardData().getNumOfCols());
             jsonMap.put("size", this.gson.toJson(dm));
