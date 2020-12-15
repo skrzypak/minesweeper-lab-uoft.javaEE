@@ -2,9 +2,8 @@ package pl.polsl.lab.saper.servlets;
 
 import com.google.gson.Gson;
 import pl.polsl.lab.saper.exception.FieldException;
-import pl.polsl.lab.saper.jdbc.Delete;
-import pl.polsl.lab.saper.jdbc.Read;
-import pl.polsl.lab.saper.jdbc.Update;
+import pl.polsl.lab.saper.jdbc.ReadFnDb;
+import pl.polsl.lab.saper.jdbc.UpdateFnDb;
 import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
 
@@ -58,27 +57,27 @@ public class FieldClickServlet extends HttpServlet {
                     // Set as selected
                     try {
 
-                        if(Read.getNumOfMinesAroundField(id, inx) == 0) {
+                        if(ReadFnDb.getNumOfMinesAroundField(id, inx) == 0) {
                             Map<String,Integer> tmp = new HashMap<>();
                             findUntilNoZeroField(tmp, inx, id);
                             jsonMap.put("zero", this.gson.toJson(tmp));
                         }
 
-                        Update.setFieldAsSelected(id, inx);
+                        UpdateFnDb.setFieldAsSelected(id, inx);
                         updateGameStatus(id, inx);
 
-                        jsonMap.put("numOfMines", Read.getNumOfMinesAroundField(id, inx).toString());
+                        jsonMap.put("numOfMines", ReadFnDb.getNumOfMinesAroundField(id, inx).toString());
 
-                        jsonMap.put("mine", String.valueOf(Read.getInfoAboutMine(id, inx)));
+                        jsonMap.put("mine", String.valueOf(ReadFnDb.getInfoAboutMine(id, inx)));
 
-                    } catch (SQLException | FieldException e) {
+                    } catch (SQLException e) {
                         jsonMap.put("error", e.getMessage());
                         e.printStackTrace();
                     }
 
                     try {
-                        if(Read.getGameResult(id) == IEnumGame.GameResult.LOSE) {
-                            ArrayList<Index> arr = Read.getMinesIndex(id);
+                        if(ReadFnDb.getGameResult(id) == IEnumGame.GameResult.LOSE) {
+                            ArrayList<Index> arr = ReadFnDb.getMinesIndex(id);
                             jsonMap.put("mines", this.gson.toJson(arr));
                         }
                     } catch (SQLException throwables) {
@@ -89,17 +88,17 @@ public class FieldClickServlet extends HttpServlet {
                 } else if (type.equals("right")) {
                     // Set as mark
                     try {
-                        if(!Read.fieldSelected(id, inx)) {
-                            if(Read.getInfoAboutMark(id, inx)) {
-                                Delete.removeFieldMark(id, inx);
+                        if(!ReadFnDb.fieldSelected(id, inx)) {
+                            if(ReadFnDb.getInfoAboutMark(id, inx)) {
+                                UpdateFnDb.removeFieldMark(id, inx);
                             } else {
-                                Update.setFieldAsMark(id, inx);
+                                UpdateFnDb.setFieldAsMark(id, inx);
                             }
-                            jsonMap.put("mark", String.valueOf(Read.getInfoAboutMark(id, inx)));
+                            jsonMap.put("mark", String.valueOf(ReadFnDb.getInfoAboutMark(id, inx)));
                         } else {
                             jsonMap.put("error", "Field is selected");
                         }
-                    } catch (FieldException | SQLException e) {
+                    } catch (SQLException e) {
                         jsonMap.put("error", e.getMessage());
                         e.printStackTrace();
                     }
@@ -115,7 +114,7 @@ public class FieldClickServlet extends HttpServlet {
 
         resp.setContentType("application/json;charset=UTF-8");
         try {
-            jsonMap.put("gameStatus", Read.getGameResult(id).toString());
+            jsonMap.put("gameStatus", ReadFnDb.getGameResult(id).toString());
         } catch (SQLException throwables) {
             jsonMap.put("error", throwables.getMessage());
             throwables.printStackTrace();
@@ -127,11 +126,12 @@ public class FieldClickServlet extends HttpServlet {
 
     /**
      * Check if game is running
-     *
+     * @param id game id
+     * @throws SQLException err syntax or connection
      * @return TRUE if game is running or FALSE if end
      */
     private boolean isGameRunning(Integer id) throws SQLException {
-        IEnumGame.GameResult r = Read.getGameResult(id);
+        IEnumGame.GameResult r = ReadFnDb.getGameResult(id);
         return r == IEnumGame.GameResult.NONE;
     }
 
@@ -144,14 +144,12 @@ public class FieldClickServlet extends HttpServlet {
      * @param inx field index object
      */
     private void updateGameStatus(Integer id, Index inx) throws SQLException {
-        try {
-            if (Read.getInfoAboutMine(id, inx)) {
-                Update.setLose(id);
-            }
-            if (Read.getFreeFieldCounter(id) <= 0) {
-                Update.setWin(id);
-            }
-        } catch (FieldException ignored) { }
+        if (ReadFnDb.getInfoAboutMine(id, inx)) {
+            UpdateFnDb.setLose(id);
+        }
+        if (ReadFnDb.getFreeFieldCounter(id) <= 0) {
+            UpdateFnDb.setWin(id);
+        }
     }
 
     /**
@@ -164,7 +162,7 @@ public class FieldClickServlet extends HttpServlet {
 
         try {
             isCorrectField(id, inx);
-            if (Read.getInfoAboutMine(id, inx) || Read.fieldSelected(id, inx)) {
+            if (ReadFnDb.getInfoAboutMine(id, inx) || ReadFnDb.fieldSelected(id, inx)) {
                 //Field has mine or was selected earlier so end recursive
                 return;
             }
@@ -177,14 +175,14 @@ public class FieldClickServlet extends HttpServlet {
 
         try {
             isCorrectField(id, inx);
-            mines = Read.getNumOfMinesAroundField(id, inx);
+            mines = ReadFnDb.getNumOfMinesAroundField(id, inx);
         } catch (FieldException | SQLException ignore) { }
 
         if (mines > 0) {
             // Field is no mine but around have samo mine, so set field as selected and end recursive
             try {
                 isCorrectField(id, inx);
-                Update.setFieldAsSelected(id, inx);
+                UpdateFnDb.setFieldAsSelected(id, inx);
             } catch (FieldException | SQLException ignore) { }
             tmp.put(this.gson.toJson(inx), mines);
             return;
@@ -193,7 +191,7 @@ public class FieldClickServlet extends HttpServlet {
         // Field has no mine so set as 0, next call recursive to next fields
         try {
             isCorrectField(id, inx);
-            Update.setFieldAsSelected(id, inx);
+            UpdateFnDb.setFieldAsSelected(id, inx);
         } catch (FieldException | SQLException ignore) { }
         tmp.put(this.gson.toJson(inx), 0);
 
@@ -215,11 +213,13 @@ public class FieldClickServlet extends HttpServlet {
      * Check whether field is board or out of range
      * @param id game id
      * @param inx field index object
+     * @throws SQLException err syntax or connection
+     * @throws FieldException if field index is out of range or game board border
      */
     public void isCorrectField(Integer id, Index inx) throws FieldException, SQLException {
-        if (inx.getRowIndex() <= 0 || inx.getRowIndex() > Read.getNumOfRows(id) - 2)
+        if (inx.getRowIndex() <= 0 || inx.getRowIndex() > ReadFnDb.getNumOfRows(id) - 2)
             throw new FieldException("Invalid row index");
-        if (inx.getColIndex() <= 0 || inx.getColIndex() > Read.getNumOfCols(id) - 2)
+        if (inx.getColIndex() <= 0 || inx.getColIndex() > ReadFnDb.getNumOfCols(id) - 2)
             throw new FieldException("Invalid column index");
     }
 

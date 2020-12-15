@@ -1,20 +1,19 @@
 package pl.polsl.lab.saper.servlets;
 import pl.polsl.lab.saper.DatabaseConfig;
 import pl.polsl.lab.saper.exception.FieldException;
+import pl.polsl.lab.saper.jdbc.CreateFnDb;
 import pl.polsl.lab.saper.model.Dimensions;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.gson.Gson;
-import pl.polsl.lab.saper.model.Field;
 import pl.polsl.lab.saper.model.Game;
 import pl.polsl.lab.saper.model.Index;
 
@@ -50,7 +49,7 @@ public class InitGameServlet extends HttpServlet {
             DatabaseConfig.set();
             randomMines(gameModel, height, width);
 
-            insertNewGameToDb(gameModel);
+            CreateFnDb.insertNewGameToDb(gameModel);
 
             Dimensions dm = new Dimensions(gameModel.getBoardData().getNumOfRows(), gameModel.getBoardData().getNumOfCols());
             jsonMap.put("size", this.gson.toJson(dm));
@@ -146,37 +145,5 @@ public class InitGameServlet extends HttpServlet {
                 } catch (FieldException ignored) { }
             }
         }
-    }
-
-    /**
-     * Insert new game data to database
-     * @throws SQLException err syntax or connection
-     */
-    private void insertNewGameToDb(Game gameModel) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-
-        statement.executeUpdate("INSERT INTO GAMES(ID, RESULT, FREE_FIELD_COUNTER ) VALUES ("
-                +gameModel.getId()+ ",'" +gameModel.getGameResult().toString() + "'" + "," + gameModel.getFreeFieldCounter() + ");");
-
-        statement.executeUpdate("INSERT INTO GAMES_BOARD( GAME_ID, NUM_OF_ROWS, NUM_OF_COLS ) VALUES"
-                + "("+gameModel.getId()+"," + gameModel.getBoardData().getNumOfRows() + "," + gameModel.getBoardData().getNumOfCols() + ");");
-
-        for(Field f: gameModel.getBoardData().getFields()) {
-            statement.executeUpdate("INSERT INTO FIELDS( GAME_ID, ROW_INX, COL_INX, MINE, MARKED, SELECTED, AROUND_MINES ) VALUES"
-                    + "("
-                    +gameModel.getId()+","
-                    + f.getRowIndex() + ","
-                    + f.getColIndex() + ","
-                    + f.isMine() + ","
-                    + f.isMarked() + ","
-                    + f.isSelected() + ","
-                    + f.getNumOfMinesAroundField()
-                    + ");");
-        }
-
-//        ResultSet rs = statement.executeQuery("SELECT * FROM GAMES;");
-//        while(rs.next()){
-//            System.out.println(rs.getString("FREE_FIELD_COUNTER"));
-//        }
     }
 }

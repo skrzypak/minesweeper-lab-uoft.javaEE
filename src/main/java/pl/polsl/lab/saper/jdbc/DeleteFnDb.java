@@ -1,22 +1,16 @@
 package pl.polsl.lab.saper.jdbc;
 
 import pl.polsl.lab.saper.DatabaseConfig;
-import pl.polsl.lab.saper.exception.FieldException;
-import pl.polsl.lab.saper.model.Index;
-
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Delete {
-    public static void removeFieldMark(Integer id, Index inx) throws FieldException, SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE FIELDS SET "
-                + "MARKED=false "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
-                + ";");
-    }
+/**
+ * Class contains method that define delete database operation
+ *
+ * @author Konrad Skrzypczyk
+ * @version 1.0
+ */
+public class DeleteFnDb {
 
     /**
      * Drops tables in database

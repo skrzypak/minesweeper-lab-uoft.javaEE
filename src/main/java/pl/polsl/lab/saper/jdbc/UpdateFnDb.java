@@ -1,15 +1,27 @@
 package pl.polsl.lab.saper.jdbc;
 
 import pl.polsl.lab.saper.DatabaseConfig;
-import pl.polsl.lab.saper.exception.FieldException;
 import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
 
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Update {
-    public static void setFieldAsMark(Integer id, Index inx) throws FieldException, SQLException {
+/**
+ * Class contains method that define update database operation
+ *
+ * @author Konrad Skrzypczyk
+ * @version 1.0
+ */
+public class UpdateFnDb {
+
+    /**
+     * Method set filed as mark
+     * @param id game id
+     * @param inx field index object
+     * @throws SQLException err syntax or connection
+     */
+    public static void setFieldAsMark(Integer id, Index inx) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         statement.executeUpdate("UPDATE FIELDS SET "
                 + "MARKED=true "
@@ -19,8 +31,14 @@ public class Update {
                 + ";");
     }
 
-    public static void setFieldAsSelected(Integer id, Index inx) throws FieldException, SQLException {
-        if(!Read.fieldSelected(id, inx)) {
+    /**
+     * Method set filed as selected by player
+     * @param id game id
+     * @param inx field index object
+     * @throws SQLException err syntax or connection
+     */
+    public static void setFieldAsSelected(Integer id, Index inx) throws SQLException {
+        if(!ReadFnDb.fieldSelected(id, inx)) {
             Statement statement = DatabaseConfig.getConn().createStatement();
             statement.executeUpdate("UPDATE FIELDS SET "
                     + "SELECTED=true "
@@ -28,12 +46,17 @@ public class Update {
                     + "ROW_INX="+inx.getRowIndex()+" AND "
                     + "COL_INX="+inx.getColIndex()
                     + ";");
-            Update.decrementFreeFieldCounter(id);
+            UpdateFnDb.decrementFreeFieldCounter(id);
         }
     }
 
+    /**
+     * Method decrement free field counter (number of non selected no-mine fields)
+     * @param id game id
+     * @throws SQLException err syntax or connection
+     */
     public static void decrementFreeFieldCounter(Integer id) throws SQLException {
-        Integer counter = Read.getFreeFieldCounter(id);
+        Integer counter = ReadFnDb.getFreeFieldCounter(id);
         counter--;
         Statement statement = DatabaseConfig.getConn().createStatement();
         statement.executeUpdate("UPDATE GAMES SET "
@@ -42,6 +65,11 @@ public class Update {
                 + ";");
     }
 
+    /**
+     * Method set game as win
+     * @param id game id
+     * @throws SQLException err syntax or connection
+     */
     public static void setWin(Integer id) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         statement.executeUpdate("UPDATE GAMES SET "
@@ -50,11 +78,32 @@ public class Update {
                 + ";");
     }
 
+    /**
+     * Method set game as loses
+     * @param id game id
+     * @throws SQLException err syntax or connection
+     */
     public static void setLose(Integer id) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         statement.executeUpdate("UPDATE GAMES SET "
                 + "RESULT=" + "'"  + IEnumGame.GameResult.LOSE.toString() + "'"  + " "
                 + "WHERE ID="+ id
+                + ";");
+    }
+
+    /**
+     * Method unmark filed
+     * @param id game id
+     * @param inx field index object
+     * @throws SQLException err syntax or connection
+     */
+    public static void removeFieldMark(Integer id, Index inx) throws SQLException {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+        statement.executeUpdate("UPDATE FIELDS SET "
+                + "MARKED=false "
+                + "WHERE GAME_ID="+ id + " AND "
+                + "ROW_INX="+inx.getRowIndex()+" AND "
+                + "COL_INX="+inx.getColIndex()
                 + ";");
     }
 }

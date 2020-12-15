@@ -1,6 +1,6 @@
 package pl.polsl.lab.saper;
-import pl.polsl.lab.saper.jdbc.Create;
-import pl.polsl.lab.saper.jdbc.Delete;
+import pl.polsl.lab.saper.jdbc.CreateFnDb;
+import pl.polsl.lab.saper.jdbc.DeleteFnDb;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -30,9 +30,9 @@ public class DatabaseConfig {
         String url = "jdbc:h2:mem:db";
         conn = DriverManager.getConnection(url);
         if (next) {
-            Delete.truncateTables();
+            DeleteFnDb.truncateTables();
         } else {
-            Create.createTables();
+            CreateFnDb.createTables();
         }
     }
 
@@ -46,10 +46,11 @@ public class DatabaseConfig {
 
     /**
      * Remove game model object (equals stop game) and close connection to database
+     * @throws SQLException err syntax or connection
      * */
     static public void close() throws SQLException {
         if (conn != null) {
-            Delete.dropsTables();
+            DeleteFnDb.dropsTables();
             conn.close();
         }
     }

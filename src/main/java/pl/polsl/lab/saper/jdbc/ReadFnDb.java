@@ -1,7 +1,6 @@
 package pl.polsl.lab.saper.jdbc;
 
 import pl.polsl.lab.saper.DatabaseConfig;
-import pl.polsl.lab.saper.exception.FieldException;
 import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
 
@@ -10,8 +9,22 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class Read {
-    public static boolean getInfoAboutMark(Integer id, Index inx) throws FieldException, SQLException {
+/**
+ * Class contains method that define read database operation
+ *
+ * @author Konrad Skrzypczyk
+ * @version 1.0
+ */
+public class ReadFnDb {
+
+    /**
+     * Method return info about is field mark
+     * @param id game id
+     * @param inx field index object
+     * @return true if is selected, otherwise false
+     * @throws SQLException err syntax or connection
+     */
+    public static boolean getInfoAboutMark(Integer id, Index inx) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         ResultSet rs = statement.executeQuery("SELECT MARKED FROM FIELDS "
                 + "WHERE GAME_ID="+ id + " AND "
@@ -26,7 +39,14 @@ public class Read {
         throw new SQLException("Not found MARKED param in FIELDS database INDEX: " + inx.toString());
     }
 
-    public static boolean fieldSelected(Integer id, Index inx) throws FieldException, SQLException {
+    /**
+     * Get info about field select state
+     * @param id game id
+     * @param inx field index object
+     * @throws SQLException err syntax or connection
+     * @return true if field was selected otherwise false
+     */
+    public static boolean fieldSelected(Integer id, Index inx) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         ResultSet rs = statement.executeQuery("SELECT SELECTED FROM FIELDS "
                 + "WHERE GAME_ID="+ id + " AND "
@@ -41,7 +61,14 @@ public class Read {
         throw new SQLException("Not found SELECTED param in FIELDS database INDEX: " + inx.toString());
     }
 
-    public static boolean getInfoAboutMine(Integer id, Index inx) throws FieldException, SQLException {
+    /**
+     * Get info about field contain mine
+     * @param id game id
+     * @param inx field index object
+     * @throws SQLException err syntax or connection
+     * @return true if field is mine otherwise false
+     */
+    public static boolean getInfoAboutMine(Integer id, Index inx) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         ResultSet rs = statement.executeQuery("SELECT MINE FROM FIELDS "
                 + "WHERE GAME_ID="+ id + " AND "
@@ -56,7 +83,14 @@ public class Read {
         throw new SQLException("Not found MINE param in FIELDS database INDEX: " + inx.toString());
     }
 
-    public static Integer getNumOfMinesAroundField(Integer id, Index inx) throws FieldException, SQLException {
+    /**
+     * Get info about number of mines around field
+     * @param id game id
+     * @param inx field index object
+     * @throws SQLException err syntax or connection
+     * @return number of mines from database
+     */
+    public static Integer getNumOfMinesAroundField(Integer id, Index inx) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         ResultSet rs = statement.executeQuery("SELECT AROUND_MINES FROM FIELDS "
                 + "WHERE GAME_ID="+ id + " AND "
@@ -71,6 +105,12 @@ public class Read {
         throw new SQLException("Not found AROUND_MINES param in FIELDS database INDEX: " + inx.toString());
     }
 
+    /**
+     * Get number of fields that not contains mine and user no selected it
+     * @param id game id
+     * @throws SQLException err syntax or connection
+     * @return number from database
+     */
     public static Integer getFreeFieldCounter(Integer id) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         ResultSet rs = statement.executeQuery("SELECT FREE_FIELD_COUNTER FROM GAMES "
@@ -85,6 +125,12 @@ public class Read {
         throw new SQLException("Not found FREE_FIELD_COUNTER param in GAMES ID: " + id);
     }
 
+    /**
+     * Get number of board columns
+     * @param id game id
+     * @throws SQLException err syntax or connection
+     * @return numbers of columns from database
+     */
     public static int getNumOfCols(Integer id) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         ResultSet rs = statement.executeQuery("SELECT NUM_OF_COLS FROM GAMES_BOARD "
@@ -98,6 +144,12 @@ public class Read {
         throw new SQLException("Not found NUM_OF_COLS param in GAMES_BOARDS GAME_ID: " + id);
     }
 
+    /**
+     * Get number of board rows
+     * @param id game id
+     * @throws SQLException err syntax or connection
+     * @return number of board rows from database
+     */
     public static int getNumOfRows(Integer id) throws SQLException {
         Statement statement = DatabaseConfig.getConn().createStatement();
         ResultSet rs = statement.executeQuery("SELECT NUM_OF_ROWS FROM GAMES_BOARD "
@@ -111,6 +163,12 @@ public class Read {
         throw new SQLException("Not found NUM_OF_ROWS param in GAMES_BOARDS GAME_ID: " + id);
     }
 
+    /**
+     * Get game state result
+     * @param id game id
+     * @throws SQLException err syntax or connection
+     * @return game state result form database
+     */
     public static IEnumGame.GameResult getGameResult(Integer id) throws SQLException  {
         Statement statement = DatabaseConfig.getConn().createStatement();
         ResultSet rs = statement.executeQuery("SELECT RESULT FROM GAMES "
@@ -138,6 +196,7 @@ public class Read {
      * Get all fields index that contains mines
      * @param id game key id
      * @return array list
+     * @throws SQLException err syntax or connection
      */
     public static ArrayList<Index> getMinesIndex(Integer id) throws SQLException {
         ArrayList<Index> minesIndex = new ArrayList<>();

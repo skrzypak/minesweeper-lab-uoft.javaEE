@@ -41,6 +41,7 @@ public class Game {
 
     /**
      * Get game id
+     * @return game id
      */
     public Integer getId() {return this.id;}
 
