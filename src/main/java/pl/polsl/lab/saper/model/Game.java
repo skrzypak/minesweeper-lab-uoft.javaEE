@@ -10,6 +10,7 @@ import pl.polsl.lab.saper.exception.FieldException;
  */
 public class Game {
 
+    private Integer id; // Game id
     private GameBoard gameBoard;             // Contains game fields
     private Integer freeFieldCounter;        // Number of no selected field by player with no mine, if 0 player win
     private Boolean running;                 // Game state (1) game running, otherwise 0
@@ -26,7 +27,7 @@ public class Game {
     public Game(Integer height, Integer width) throws FieldException {
 
         if (height <= 0 || width <= 0) throw new FieldException("Invalid height or width size");
-
+        this.id = 0;
         this.gameResult = IEnumGame.GameResult.NONE;
         this.gameBoard = new GameBoard(height, width);
         this.freeFieldCounter = height * width;
@@ -37,6 +38,11 @@ public class Game {
         }
         this.running = true;
     }
+
+    /**
+     * Get game id
+     */
+    public Integer getId() {return this.id;}
 
     /**
      * Method initialize empty new board game
@@ -66,48 +72,6 @@ public class Game {
      */
     public GameBoard getBoardData() {
         return this.gameBoard;
-    }
-
-    /**
-     * Get game status
-     *
-     * @return Game end (0), Game running (1)
-     */
-    public Boolean getRunning() {
-        return this.running;
-    }
-
-    /**
-     * Method set filed as mark
-     *
-     * @param inx field index object
-     * @throws FieldException if field value is game board border or out of range
-     */
-    public void setFieldAsMark(Index inx) throws FieldException {
-        isCorrectField(inx);
-        this.gameBoard.get(inx).setFieldAsMark();
-    }
-
-    /**
-     * Method unmark filed
-     *
-     * @param inx field index object
-     * @throws FieldException if field value is game board border or out of range
-     */
-    public void removeFieldMark(Index inx) throws FieldException {
-        isCorrectField(inx);
-        this.gameBoard.get(inx).removeFieldMark();
-    }
-
-    /**
-     * Method set filed as selected by player
-     * @param inx field index object
-     * @throws FieldException if field value is game board border or out of range
-     */
-    public void setFieldAsSelected(Index inx) throws FieldException {
-        isCorrectField(inx);
-        if (this.gameBoard.get(inx).setFieldAsSelected())
-            this.freeFieldCounter--;
     }
 
     /**
@@ -152,49 +116,6 @@ public class Game {
     }
 
     /**
-     * Method return info about is field mark
-     *
-     * @param inx field index object
-     * @return true if is selected, otherwise false
-     * @throws FieldException if field value is game board border or out of range
-     */
-    public boolean getInfoAboutMark(Index inx) throws FieldException {
-        isCorrectField(inx);
-        return this.gameBoard.get(inx).isMarked();
-    }
-
-    /**
-     * Method stop game
-     */
-    private void endGame() {
-        this.running = false;
-    }
-
-    /**
-     * Method set game as loses
-     */
-    public void setLose() {
-        this.gameResult = IEnumGame.GameResult.LOSE;
-        endGame();
-    }
-
-    /**
-     * Method set game as winner
-     */
-    public void setWin() {
-        this.gameResult = IEnumGame.GameResult.WIN;
-        endGame();
-    }
-
-    /**
-     * Method set game as canceled
-     */
-    public void setCancel() {
-        this.gameResult = IEnumGame.GameResult.CANCELED;
-        endGame();
-    }
-
-    /**
      * Method return game result
      *
      * @return LOSE (player lose) ,WIN (player wind), NONE (currently no result)
@@ -228,10 +149,6 @@ public class Game {
      * @return true if was selected, otherwise false
      * @throws FieldException if field value is game board border or out of range
      */
-    public boolean fieldSelected(Index inx) throws FieldException {
-        isCorrectField(inx);
-        return this.gameBoard.get(inx).isSelected();
-    }
 
     /**
      * Method check that field is correct
@@ -246,9 +163,5 @@ public class Game {
             throw new FieldException("Invalid column index");
     }
 
-    public Integer getNumOfMinesAroundField(Index inx) throws FieldException {
-        isCorrectField(inx);
-        return this.gameBoard.get(inx).getNumOfMinesAroundField();
-    }
 }
 

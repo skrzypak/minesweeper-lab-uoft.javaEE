@@ -1,8 +1,4 @@
 package pl.polsl.lab.saper;
-
-import pl.polsl.lab.saper.exception.FieldException;
-import pl.polsl.lab.saper.model.Game;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -14,32 +10,25 @@ import java.sql.Statement;
  * @author Konrad Skrzypczyk
  * @version 1.0
  */
-public class Content {
+public class DatabaseConfig {
 
-    static private Game gameModel = null;   // Game model object
-    static private Connection conn = null;
+    static private Connection conn = null; // Database connections handler
 
     /**
      * Class constructor
      */
-    private Content() { }
+    private DatabaseConfig() { }
 
     /**
      * Create new gameModel instance if not exists
-     * @param height board height
-     * @param width board width
-     * @throws FieldException if dimensions are wrong
      * @throws SQLException when detect connection err to databse
      * */
-    static public void set(Integer height, Integer width) throws FieldException, SQLException {
-        if (Content.gameModel == null) {
-            gameModel = new Game(height, width);
-            DriverManager.registerDriver(new org.h2.Driver());
-            String url = "jdbc:h2:mem:db";
-            conn = DriverManager.getConnection(url);
-            System.out.println("Connection to H2 has been established.");
-            createTables();
-        }
+    static public void set() throws SQLException {
+        DriverManager.registerDriver(new org.h2.Driver());
+        String url = "jdbc:h2:mem:db";
+        conn = DriverManager.getConnection(url);
+        System.out.println("Connection to H2 has been established.");
+        createTables();
     }
 
     /**
@@ -47,7 +36,7 @@ public class Content {
      * @throws SQLException err syntax or connection
      */
     private static void createTables() throws SQLException {
-        Statement statement = Content.getConn().createStatement();
+        Statement statement = DatabaseConfig.getConn().createStatement();
 
         statement.executeUpdate("CREATE TABLE GAMES"
                 + "(ID INTEGER PRIMARY KEY, RESULT VARCHAR(10), "
@@ -65,18 +54,10 @@ public class Content {
      * @throws SQLException err syntax or connection
      */
     static private void dropsTables() throws SQLException {
-        Statement statement = Content.getConn().createStatement();
+        Statement statement = DatabaseConfig.getConn().createStatement();
         statement.executeUpdate("DROP TABLE FIELDS;");
         statement.executeUpdate("DROP TABLE GAMES_BOARD;");
         statement.executeUpdate("DROP TABLE GAMES;");
-    }
-
-    /**
-     * Get game model object
-     * @return game model object
-     * */
-    static public Game get() {
-        return gameModel;
     }
 
     /**
@@ -90,10 +71,8 @@ public class Content {
     /**
      * Remove game model object (equals stop game) and close connection to database
      * */
-    static public void clear() throws SQLException {
-        gameModel = null;
+    static public void close() throws SQLException {
         if (conn != null) {
-            dropsTables();
             conn.close();
         }
     }

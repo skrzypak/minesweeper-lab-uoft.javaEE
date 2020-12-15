@@ -90,13 +90,4 @@ public class GameBoard {
         }
         this.fields.add(new Field(inx));
     }
-
-    /**
-     * Returning raw board fields
-     *
-     * @return fields ArrayList
-     */
-    public ArrayList<Field> raw() {
-        return this.fields;
-    }
 }

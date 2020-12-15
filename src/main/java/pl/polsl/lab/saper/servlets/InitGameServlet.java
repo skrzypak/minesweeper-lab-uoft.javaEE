@@ -1,12 +1,11 @@
 package pl.polsl.lab.saper.servlets;
-import pl.polsl.lab.saper.Content;
+import pl.polsl.lab.saper.DatabaseConfig;
 import pl.polsl.lab.saper.exception.FieldException;
 import pl.polsl.lab.saper.model.Dimensions;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -47,13 +46,13 @@ public class InitGameServlet extends HttpServlet {
             Integer height = Integer.parseInt(request.getParameter("height"));
             Integer width = Integer.parseInt(request.getParameter("width"));
 
-            Content.clear();
-            Content.set(height, width);
-            randomMines(height, width);
+            Game gameModel = new Game(height, width);
+            DatabaseConfig.set();
+            randomMines(gameModel, height, width);
 
-            insertNewGameToDb(Content.get());
+            insertNewGameToDb(gameModel);
 
-            Dimensions dm = new Dimensions(Content.get().getBoardData().getNumOfRows(), Content.get().getBoardData().getNumOfCols());
+            Dimensions dm = new Dimensions(gameModel.getBoardData().getNumOfRows(), gameModel.getBoardData().getNumOfCols());
             jsonMap.put("size", this.gson.toJson(dm));
 
             CookiesServlet ob = new CookiesServlet();
@@ -70,44 +69,13 @@ public class InitGameServlet extends HttpServlet {
     }
 
     /**
-     * Insert new game data to database
-     * @throws SQLException err syntax or connection
-     */
-    private static void insertNewGameToDb(Game gameModel) throws SQLException {
-        Statement statement = Content.getConn().createStatement();
-
-        statement.executeUpdate("INSERT INTO GAMES(ID, RESULT, FREE_FIELD_COUNTER ) VALUES ("
-                +0+ ",'" +gameModel.getGameResult().toString() + "'" + "," + gameModel.getFreeFieldCounter() + ");");
-
-        statement.executeUpdate("INSERT INTO GAMES_BOARD( GAME_ID, NUM_OF_ROWS, NUM_OF_COLS ) VALUES"
-                + "(0," + gameModel.getBoardData().getNumOfRows() + "," + gameModel.getBoardData().getNumOfCols() + ");");
-
-        for(Field f: gameModel.getBoardData().getFields()) {
-            statement.executeUpdate("INSERT INTO FIELDS( GAME_ID, ROW_INX, COL_INX, MINE, MARKED, SELECTED, AROUND_MINES ) VALUES"
-                    + "(0,"
-                    + f.getRowIndex() + ","
-                    + f.getColIndex() + ","
-                    + f.isMine() + ","
-                    + f.isMarked() + ","
-                    + f.isSelected() + ","
-                    + f.getNumOfMinesAroundField()
-                    + ");");
-        }
-
-//        ResultSet rs = statement.executeQuery("SELECT * FROM GAMES;");
-//        while(rs.next()){
-//            System.out.println(rs.getString("FREE_FIELD_COUNTER"));
-//        }
-    }
-
-    /**
      * Method random mines and putting to game board
-     *
+     * @param gameModel game model object
      * @param height board height without border (user input value)
      * @param width  board width without border (user input value)
      * @throws IllegalArgumentException if size is not correct
      */
-    static private void randomMines(Integer height, Integer width) throws IllegalArgumentException {
+    private void randomMines(Game gameModel, Integer height, Integer width) throws IllegalArgumentException {
 
         if (height == null || height <= 0) throw new IllegalArgumentException("Height null or less than 1");
         if (width == null || width <= 0) throw new IllegalArgumentException("Width null or less than 1");
@@ -125,7 +93,7 @@ public class InitGameServlet extends HttpServlet {
             numOfMine = ThreadLocalRandom.current().nextInt(0, 1);
         }
 
-        Content.get().setFreeFieldCounter(Content.get().getFreeFieldCounter() - numOfMine);
+        gameModel.setFreeFieldCounter(gameModel.getFreeFieldCounter() - numOfMine);
 
         int randRow;
         int randCol;
@@ -142,23 +110,22 @@ public class InitGameServlet extends HttpServlet {
                     randCol = ThreadLocalRandom.current().nextInt(1, width);
                 else randCol = 1;
 
-            } while (Content.get().getBoardData().get(new Index(randRow, randCol)).isMine());
+            } while (gameModel.getBoardData().get(new Index(randRow, randCol)).isMine());
 
-            Content.get().getBoardData().get(new Index(randRow, randCol)).setAsMine();
+            gameModel.getBoardData().get(new Index(randRow, randCol)).setAsMine();
         }
 
-        countMines(Content.get().getBoardData().getNumOfRows(), Content.get().getBoardData().getNumOfCols());
+        countMines(gameModel);
     }
 
     /**
      * Function count mines around field and set value to proper filed
-     * @param numOfRows board number of rows
-     * @param numOfCols board number of columns
+     * @param gameModel game model object
      */
-    private static void countMines(Integer numOfRows, Integer numOfCols){
+    private void countMines(Game gameModel){
 
-        for(int row = 1; row < numOfRows - 1; row++) {
-            for(int col = 1; col < numOfCols - 1; col++) {
+        for(int row = 1; row < gameModel.getBoardData().getNumOfRows() - 1; row++) {
+            for(int col = 1; col < gameModel.getBoardData().getNumOfCols() - 1; col++) {
                 int num = 0;
                 LinkedList<Index> index = new LinkedList<>();
                 index.add(new Index(row - 1, col - 1));
@@ -171,13 +138,45 @@ public class InitGameServlet extends HttpServlet {
                 index.add(new Index(row + 1, col + 1));
                 for (Index i : index) {
                     try {
-                        if (Content.get().getInfoAboutMine(i)) num++;
+                        if (gameModel.getInfoAboutMine(i)) num++;
                     } catch (FieldException ignored) { }
                 }
                 try {
-                    Content.get().setFiledAroundMines(num, new Index(row, col));
+                    gameModel.setFiledAroundMines(num, new Index(row, col));
                 } catch (FieldException ignored) { }
             }
         }
+    }
+
+    /**
+     * Insert new game data to database
+     * @throws SQLException err syntax or connection
+     */
+    private void insertNewGameToDb(Game gameModel) throws SQLException {
+        Statement statement = DatabaseConfig.getConn().createStatement();
+
+        statement.executeUpdate("INSERT INTO GAMES(ID, RESULT, FREE_FIELD_COUNTER ) VALUES ("
+                +gameModel.getId()+ ",'" +gameModel.getGameResult().toString() + "'" + "," + gameModel.getFreeFieldCounter() + ");");
+
+        statement.executeUpdate("INSERT INTO GAMES_BOARD( GAME_ID, NUM_OF_ROWS, NUM_OF_COLS ) VALUES"
+                + "("+gameModel.getId()+"," + gameModel.getBoardData().getNumOfRows() + "," + gameModel.getBoardData().getNumOfCols() + ");");
+
+        for(Field f: gameModel.getBoardData().getFields()) {
+            statement.executeUpdate("INSERT INTO FIELDS( GAME_ID, ROW_INX, COL_INX, MINE, MARKED, SELECTED, AROUND_MINES ) VALUES"
+                    + "("
+                    +gameModel.getId()+","
+                    + f.getRowIndex() + ","
+                    + f.getColIndex() + ","
+                    + f.isMine() + ","
+                    + f.isMarked() + ","
+                    + f.isSelected() + ","
+                    + f.getNumOfMinesAroundField()
+                    + ");");
+        }
+
+//        ResultSet rs = statement.executeQuery("SELECT * FROM GAMES;");
+//        while(rs.next()){
+//            System.out.println(rs.getString("FREE_FIELD_COUNTER"));
+//        }
     }
 }

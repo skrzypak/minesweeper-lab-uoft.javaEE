@@ -11,8 +11,8 @@ import pl.polsl.lab.saper.exception.FieldException;
 public class Field extends Index {
 
     private Boolean mine;           // If true, field is mine
-    private Boolean marked;         // If true, user mark field as mine
-    private Boolean selected;       // If true, field was selected by user
+    private final Boolean marked;         // If true, user mark field as mine
+    private final Boolean selected;       // If true, field was selected by user
     private Integer aroundMines;    // Container number of mines around field, update when user select field
 
     /**
@@ -38,26 +38,6 @@ public class Field extends Index {
      */
     public void setAsMine() {
         this.mine = true;
-    }
-
-
-    /**
-     * Method mark set field as marked by player
-     */
-    public void setFieldAsMark() {
-        this.marked = true;
-    }
-
-    /**
-     * Method set field as selected
-     * @return false when filed was selected earlier, otherwise true
-     */
-    public boolean setFieldAsSelected() {
-        if (!this.selected) {
-            this.selected = true;
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -95,12 +75,5 @@ public class Field extends Index {
      */
     public Integer getNumOfMinesAroundField() {
         return this.aroundMines;
-    }
-
-    /**
-     * Method remove mark from filed
-     */
-    public void removeFieldMark() {
-        this.marked = false;
     }
 }
