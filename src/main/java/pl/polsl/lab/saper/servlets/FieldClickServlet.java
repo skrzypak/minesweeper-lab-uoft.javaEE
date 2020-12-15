@@ -60,7 +60,10 @@ public class FieldClickServlet extends HttpServlet {
 
                         if(getNumOfMinesAroundField(id, inx) == 0) {
                             Map<String,Integer> tmp = new HashMap<>();
-                            //findUntilNoZeroField(tmp, inx, id);
+                            findUntilNoZeroField(tmp, inx, id);
+
+
+
                             jsonMap.put("zero", this.gson.toJson(tmp));
                         }
 
@@ -136,13 +139,16 @@ public class FieldClickServlet extends HttpServlet {
     }
 
     private void setFieldAsSelected(Integer id, Index inx) throws FieldException, SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE FIELDS SET "
-                + "SELECTED=true "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
-                + ";");
+        if(!fieldSelected(id, inx)) {
+            Statement statement = DatabaseConfig.getConn().createStatement();
+            statement.executeUpdate("UPDATE FIELDS SET "
+                    + "SELECTED=true "
+                    + "WHERE GAME_ID="+ id + " AND "
+                    + "ROW_INX="+inx.getRowIndex()+" AND "
+                    + "COL_INX="+inx.getColIndex()
+                    + ";");
+            decrementFreeFieldCounter(id);
+        }
     }
 
     private void removeFieldMark(Integer id, Index inx) throws FieldException, SQLException {
@@ -305,6 +311,26 @@ public class FieldClickServlet extends HttpServlet {
     }
 
     /**
+     * Function calling to renderGameResult in GameView class
+     * @param id game key id
+     * @return array of index which contain mines
+     */
+    private ArrayList<Index> getMinesIndex(Integer id) throws SQLException {
+        // TODO
+        ArrayList<Index> minesIndex = new ArrayList<>();
+        for (int i = 1; i < getNumOfRows(id) - 1; i++) {
+            for (int j = 1; j < getNumOfCols(id) - 1; j++) {
+                try {
+                    Index inx = new Index(i, j);
+                    if (getInfoAboutMine(id, inx))
+                        minesIndex.add(inx);
+                } catch (FieldException ignore) { }
+            }
+        }
+        return minesIndex;
+    }
+
+    /**
      * Check if game is running
      *
      * @return TRUE if game is running or FALSE if end
@@ -327,32 +353,10 @@ public class FieldClickServlet extends HttpServlet {
             if (getInfoAboutMine(id, inx)) {
                 setLose(id);
             }
-
-            decrementFreeFieldCounter(id);
-
             if (getFreeFieldCounter(id) <= 0) {
                 setWin(id);
             }
         } catch (FieldException ignored) { }
-    }
-
-    /**
-     * Function calling to renderGameResult in GameView class
-     * @param id game key id
-     * @return array of index which contain mines
-     */
-    private ArrayList<Index> getMinesIndex(Integer id) throws SQLException {
-        ArrayList<Index> minesIndex = new ArrayList<>();
-        for (int i = 1; i < getNumOfRows(id) - 1; i++) {
-            for (int j = 1; j < getNumOfCols(id) - 1; j++) {
-                try {
-                    Index inx = new Index(i, j);
-                    if (getInfoAboutMine(id, inx))
-                        minesIndex.add(inx);
-                } catch (FieldException ignore) { }
-            }
-        }
-        return minesIndex;
     }
 
     /**
@@ -361,9 +365,10 @@ public class FieldClickServlet extends HttpServlet {
      * @param inx field index object
      * @param id game id
      */
-    private void findUntilNoZeroField(Map<String,Integer> tmp, Index inx, Integer id) throws SQLException {
+    private void findUntilNoZeroField(Map<String,Integer> tmp, Index inx, Integer id) {
 
         try {
+            isCorrectField(id, inx);
             if (getInfoAboutMine(id, inx) || fieldSelected(id, inx)) {
                 //Field has mine or was selected earlier so end recursive
                 return;
@@ -376,22 +381,25 @@ public class FieldClickServlet extends HttpServlet {
         int mines = 0;
 
         try {
+            isCorrectField(id, inx);
             mines = getNumOfMinesAroundField(id, inx);
-        } catch (FieldException ignore) { }
+        } catch (FieldException | SQLException ignore) { }
 
         if (mines > 0) {
             // Field is no mine but around have samo mine, so set field as selected and end recursive
             try {
+                isCorrectField(id, inx);
                 setFieldAsSelected(id, inx);
-            } catch (FieldException ignore) { }
+            } catch (FieldException | SQLException ignore) { }
             tmp.put(this.gson.toJson(inx), mines);
             return;
         }
 
         // Field has no mine so set as 0, next call recursive to next fields
         try {
+            isCorrectField(id, inx);
             setFieldAsSelected(id, inx);
-        } catch (FieldException ignore) { }
+        } catch (FieldException | SQLException ignore) { }
         tmp.put(this.gson.toJson(inx), 0);
 
         int row = inx.getRowIndex();
@@ -406,6 +414,18 @@ public class FieldClickServlet extends HttpServlet {
         findUntilNoZeroField(tmp, new Index(row, col - 1), id);
         findUntilNoZeroField(tmp, new Index(row - 1, col), id);
 
+    }
+
+    /**
+     * Check whether field is board or out of range
+     * @param id game id
+     * @param inx field index object
+     */
+    public void isCorrectField(Integer id, Index inx) throws FieldException, SQLException {
+        if (inx.getRowIndex() <= 0 || inx.getRowIndex() > getNumOfRows(id) - 2)
+            throw new FieldException("Invalid row index");
+        if (inx.getColIndex() <= 0 || inx.getColIndex() > getNumOfCols(id) - 2)
+            throw new FieldException("Invalid column index");
     }
 
 }

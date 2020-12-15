@@ -14,7 +14,6 @@ class App {
             if (xhr.readyState === 4) {
                 let json = xhr.responseText;
                 let data = JSON.parse(json);
-                //console.log(data)
                 if(data.error === undefined) {
                     let f = document.getElementById(`R${rowInx}C${colInx}`)
                     if(data.gameStatus === "NONE" || data.gameStatus === "WIN") {
