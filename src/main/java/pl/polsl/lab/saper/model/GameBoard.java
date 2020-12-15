@@ -65,6 +65,12 @@ public class GameBoard {
     }
 
     /**
+     * Get all fields data
+     * @return fields arr reference
+     */
+    public ArrayList<Field> getFields() {return this.fields;}
+
+    /**
      * Generate new empty field with index and putEmptyField to board
      *
      * @param inx field index object

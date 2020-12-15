@@ -44,38 +44,31 @@ public class Content {
 
     /**
      * Create tables in database
+     * @throws SQLException err syntax or connection
      */
-    private static void createTables() {
-        try {
-            Statement statement = Content.getConn().createStatement();
+    private static void createTables() throws SQLException {
+        Statement statement = Content.getConn().createStatement();
 
-            statement.executeUpdate("CREATE TABLE GAMES"
-                    + "(ID INTEGER PRIMARY KEY, RESULT VARCHAR(10), "
-                    + "FREE_FIELD_COUNTER INTEGER)");
-            statement.executeUpdate("CREATE TABLE GAMES_BOARD"
-                    + "(GAME_ID INTEGER PRIMARY KEY, NUM_OF_ROWS INTEGER, "
-                    + "NUM_OF_COLS INTEGER)");
-            statement.executeUpdate("CREATE TABLE FIELDS"
-                    + "(GAME_ID INTEGER PRIMARY KEY, ROW_INX INTEGER, COL_INX INTEGER, MINE BOOLEAN, MARKED BOOLEAN, "
-                    + "SELECTED BOOLEAN, AROUND_MINES INTEGER)");
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+        statement.executeUpdate("CREATE TABLE GAMES"
+                + "(ID INTEGER PRIMARY KEY, RESULT VARCHAR(10), "
+                + "FREE_FIELD_COUNTER INTEGER);");
+        statement.executeUpdate("CREATE TABLE GAMES_BOARD"
+                + "(GAME_ID INTEGER PRIMARY KEY, NUM_OF_ROWS INTEGER, "
+                + "NUM_OF_COLS INTEGER);");
+        statement.executeUpdate("CREATE TABLE FIELDS"
+                + "(ID INTEGER PRIMARY KEY AUTO_INCREMENT, GAME_ID INTEGER, ROW_INX INTEGER, COL_INX INTEGER, MINE BOOLEAN, MARKED BOOLEAN, "
+                + "SELECTED BOOLEAN, AROUND_MINES INTEGER);");
     }
 
     /**
      * Drops tables in database
+     * @throws SQLException err syntax or connection
      */
-    static private void dropsTables() {
-        try {
-            Statement statement = Content.getConn().createStatement();
-            statement.executeUpdate("DROP TABLE FIELDS");
-            statement.executeUpdate("DROP TABLE GAMES_BOARD");
-            statement.executeUpdate("DROP TABLE GAMES");
-        } catch (SQLException | NullPointerException e) {
-            System.out.println(e.getMessage());
-        }
+    static private void dropsTables() throws SQLException {
+        Statement statement = Content.getConn().createStatement();
+        statement.executeUpdate("DROP TABLE FIELDS;");
+        statement.executeUpdate("DROP TABLE GAMES_BOARD;");
+        statement.executeUpdate("DROP TABLE GAMES;");
     }
 
     /**
@@ -92,15 +85,6 @@ public class Content {
      * */
     static public Connection getConn() {
         return conn;
-    }
-
-    /**
-     * Close database connectionabase
-     * */
-    static public void closeConn() throws SQLException {
-        if (conn != null) {
-            conn.close();
-        }
     }
 
     /**
