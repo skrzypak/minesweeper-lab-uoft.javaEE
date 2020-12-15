@@ -3,6 +3,11 @@ package pl.polsl.lab.saper;
 import pl.polsl.lab.saper.exception.FieldException;
 import pl.polsl.lab.saper.model.Game;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 /**
  * Class define global game model
  *
@@ -12,6 +17,7 @@ import pl.polsl.lab.saper.model.Game;
 public class Content {
 
     static private Game gameModel = null;   // Game model object
+    static private Connection conn = null;
 
     /**
      * Class constructor
@@ -23,10 +29,52 @@ public class Content {
      * @param height board height
      * @param width board width
      * @throws FieldException if dimensions are wrong
+     * @throws SQLException when detect connection err to databse
      * */
-    static public void set(Integer height, Integer width) throws FieldException {
+    static public void set(Integer height, Integer width) throws FieldException, SQLException {
         if (Content.gameModel == null) {
             gameModel = new Game(height, width);
+            DriverManager.registerDriver(new org.h2.Driver());
+            String url = "jdbc:h2:mem:db";
+            conn = DriverManager.getConnection(url);
+            System.out.println("Connection to H2 has been established.");
+            createTables();
+        }
+    }
+
+    /**
+     * Create tables in database
+     */
+    private static void createTables() {
+        try {
+            Statement statement = Content.getConn().createStatement();
+
+            statement.executeUpdate("CREATE TABLE GAMES"
+                    + "(ID INTEGER PRIMARY KEY, RESULT VARCHAR(10), "
+                    + "FREE_FIELD_COUNTER INTEGER)");
+            statement.executeUpdate("CREATE TABLE GAMES_BOARD"
+                    + "(GAME_ID INTEGER PRIMARY KEY, NUM_OF_ROWS INTEGER, "
+                    + "NUM_OF_COLS INTEGER)");
+            statement.executeUpdate("CREATE TABLE FIELDS"
+                    + "(GAME_ID INTEGER PRIMARY KEY, ROW_INX INTEGER, COL_INX INTEGER, MINE BOOLEAN, MARKED BOOLEAN, "
+                    + "SELECTED BOOLEAN, AROUND_MINES INTEGER)");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Drops tables in database
+     */
+    static private void dropsTables() {
+        try {
+            Statement statement = Content.getConn().createStatement();
+            statement.executeUpdate("DROP TABLE FIELDS");
+            statement.executeUpdate("DROP TABLE GAMES_BOARD");
+            statement.executeUpdate("DROP TABLE GAMES");
+        } catch (SQLException | NullPointerException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -39,9 +87,30 @@ public class Content {
     }
 
     /**
-     * Remove game model object (equals stop game)
+     * Get connection to database
+     * @return connection to database
      * */
-    static public void clear() {
+    static public Connection getConn() {
+        return conn;
+    }
+
+    /**
+     * Close database connectionabase
+     * */
+    static public void closeConn() throws SQLException {
+        if (conn != null) {
+            conn.close();
+        }
+    }
+
+    /**
+     * Remove game model object (equals stop game) and close connection to database
+     * */
+    static public void clear() throws SQLException {
         gameModel = null;
+        if (conn != null) {
+            dropsTables();
+            conn.close();
+        }
     }
 }

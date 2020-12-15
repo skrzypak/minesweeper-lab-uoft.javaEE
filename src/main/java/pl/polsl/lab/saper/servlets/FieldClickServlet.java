@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,7 +67,7 @@ public class FieldClickServlet extends HttpServlet {
 
                     jsonMap.put("mine", String.valueOf(Content.get().getInfoAboutMine(inx)));
 
-                } catch (FieldException e) {
+                } catch (FieldException | SQLException e) {
                     jsonMap.put("error", e.getMessage());
                 }
 
@@ -108,15 +109,20 @@ public class FieldClickServlet extends HttpServlet {
      * Functions update game status
      * If user selected filed with mine, function set game status as lose in model
      * If user selected last empty field, function set game status as win in model
-     *
+     * @throws SQLException connection error
      * @param inx field index object
      */
-    private void updateGameStatus(Index inx) {
+    private void updateGameStatus(Index inx) throws SQLException {
         try {
-            if (Content.get().getInfoAboutMine(inx)) Content.get().setLose();
+            if (Content.get().getInfoAboutMine(inx)) {
+                Content.get().setLose();
+                Content.closeConn();
+            }
+            if (Content.get().getFreeFieldCounter() <= 0) {
+                Content.get().setWin();
+                Content.closeConn();
+            }
         } catch (FieldException ignored) { }
-
-        if (Content.get().getFreeFieldCounter() <= 0) Content.get().setWin();
     }
 
     /**
