@@ -56,6 +56,11 @@ public class InitGameServlet extends HttpServlet {
             return;
         }
 
+        // If session exists check whether game is running in
+
+        // TODO: game exists
+
+        // otherwise, generate new game
         try {
 
             Integer height = Integer.parseInt(request.getParameter("height"));
