@@ -1,11 +1,9 @@
 package pl.polsl.lab.saper.jdbc;
 
-import pl.polsl.lab.saper.DatabaseConfig;
 import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
 
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Class contains method that define update database operation
@@ -22,8 +20,7 @@ public class UpdateFnDb {
      * @throws SQLException err syntax or connection
      */
     public static void setFieldAsMark(Integer id, Index inx) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE FIELDS SET "
+        JDBC.executeUpdate("UPDATE FIELDS SET "
                 + "MARKED=true "
                 + "WHERE GAME_ID="+ id + " AND "
                 + "ROW_INX="+inx.getRowIndex()+" AND "
@@ -39,8 +36,7 @@ public class UpdateFnDb {
      */
     public static void setFieldAsSelected(Integer id, Index inx) throws SQLException {
         if(!ReadFnDb.fieldSelected(id, inx)) {
-            Statement statement = DatabaseConfig.getConn().createStatement();
-            statement.executeUpdate("UPDATE FIELDS SET "
+            JDBC.executeUpdate("UPDATE FIELDS SET "
                     + "SELECTED=true "
                     + "WHERE GAME_ID="+ id + " AND "
                     + "ROW_INX="+inx.getRowIndex()+" AND "
@@ -58,8 +54,7 @@ public class UpdateFnDb {
     public static void decrementFreeFieldCounter(Integer id) throws SQLException {
         Integer counter = ReadFnDb.getFreeFieldCounter(id);
         counter--;
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE GAMES SET "
+        JDBC.executeUpdate("UPDATE GAMES SET "
                 + "FREE_FIELD_COUNTER=" + counter + " "
                 + "WHERE ID="+ id
                 + ";");
@@ -71,8 +66,7 @@ public class UpdateFnDb {
      * @throws SQLException err syntax or connection
      */
     public static void setWin(Integer id) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE GAMES SET "
+        JDBC.executeUpdate("UPDATE GAMES SET "
                 + "RESULT=" + "'"  + IEnumGame.GameResult.WIN.toString() + "'"  + " "
                 + "WHERE ID="+ id
                 + ";");
@@ -84,8 +78,7 @@ public class UpdateFnDb {
      * @throws SQLException err syntax or connection
      */
     public static void setLose(Integer id) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE GAMES SET "
+        JDBC.executeUpdate("UPDATE GAMES SET "
                 + "RESULT=" + "'"  + IEnumGame.GameResult.LOSE.toString() + "'"  + " "
                 + "WHERE ID="+ id
                 + ";");
@@ -98,8 +91,7 @@ public class UpdateFnDb {
      * @throws SQLException err syntax or connection
      */
     public static void removeFieldMark(Integer id, Index inx) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("UPDATE FIELDS SET "
+        JDBC.executeUpdate("UPDATE FIELDS SET "
                 + "MARKED=false "
                 + "WHERE GAME_ID="+ id + " AND "
                 + "ROW_INX="+inx.getRowIndex()+" AND "

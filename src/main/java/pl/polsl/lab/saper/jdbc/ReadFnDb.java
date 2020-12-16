@@ -1,12 +1,10 @@
 package pl.polsl.lab.saper.jdbc;
 
-import pl.polsl.lab.saper.DatabaseConfig;
 import pl.polsl.lab.saper.model.IEnumGame;
 import pl.polsl.lab.saper.model.Index;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 /**
@@ -25,8 +23,7 @@ public class ReadFnDb {
      * @throws SQLException err syntax or connection
      */
     public static boolean getInfoAboutMark(Integer id, Index inx) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT MARKED FROM FIELDS "
+        ResultSet rs = JDBC.executeQuery("SELECT MARKED FROM FIELDS "
                 + "WHERE GAME_ID="+ id + " AND "
                 + "ROW_INX="+inx.getRowIndex()+" AND "
                 + "COL_INX="+inx.getColIndex()
@@ -47,8 +44,7 @@ public class ReadFnDb {
      * @return true if field was selected otherwise false
      */
     public static boolean fieldSelected(Integer id, Index inx) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT SELECTED FROM FIELDS "
+        ResultSet rs = JDBC.executeQuery("SELECT SELECTED FROM FIELDS "
                 + "WHERE GAME_ID="+ id + " AND "
                 + "ROW_INX="+inx.getRowIndex()+" AND "
                 + "COL_INX="+inx.getColIndex()
@@ -69,8 +65,7 @@ public class ReadFnDb {
      * @return true if field is mine otherwise false
      */
     public static boolean getInfoAboutMine(Integer id, Index inx) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT MINE FROM FIELDS "
+        ResultSet rs = JDBC.executeQuery("SELECT MINE FROM FIELDS "
                 + "WHERE GAME_ID="+ id + " AND "
                 + "ROW_INX="+inx.getRowIndex()+" AND "
                 + "COL_INX="+inx.getColIndex()
@@ -91,8 +86,7 @@ public class ReadFnDb {
      * @return number of mines from database
      */
     public static Integer getNumOfMinesAroundField(Integer id, Index inx) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT AROUND_MINES FROM FIELDS "
+        ResultSet rs = JDBC.executeQuery("SELECT AROUND_MINES FROM FIELDS "
                 + "WHERE GAME_ID="+ id + " AND "
                 + "ROW_INX="+inx.getRowIndex()+" AND "
                 + "COL_INX="+inx.getColIndex()
@@ -112,8 +106,7 @@ public class ReadFnDb {
      * @return number from database
      */
     public static Integer getFreeFieldCounter(Integer id) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT FREE_FIELD_COUNTER FROM GAMES "
+        ResultSet rs = JDBC.executeQuery("SELECT FREE_FIELD_COUNTER FROM GAMES "
                 + "WHERE ID="+ id
                 + ";");
 
@@ -132,8 +125,7 @@ public class ReadFnDb {
      * @return numbers of columns from database
      */
     public static int getNumOfCols(Integer id) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT NUM_OF_COLS FROM GAMES_BOARD "
+        ResultSet rs = JDBC.executeQuery("SELECT NUM_OF_COLS FROM GAMES_BOARD "
                 + "WHERE GAME_ID="+ id
                 + ";");
 
@@ -151,8 +143,7 @@ public class ReadFnDb {
      * @return number of board rows from database
      */
     public static int getNumOfRows(Integer id) throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT NUM_OF_ROWS FROM GAMES_BOARD "
+        ResultSet rs = JDBC.executeQuery("SELECT NUM_OF_ROWS FROM GAMES_BOARD "
                 + "WHERE GAME_ID="+ id
                 + ";");
 
@@ -170,8 +161,7 @@ public class ReadFnDb {
      * @return game state result form database
      */
     public static IEnumGame.GameResult getGameResult(Integer id) throws SQLException  {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT RESULT FROM GAMES "
+        ResultSet rs = JDBC.executeQuery("SELECT RESULT FROM GAMES "
                 + "WHERE ID="+ id
                 + ";");
 
@@ -201,8 +191,7 @@ public class ReadFnDb {
     public static ArrayList<Index> getMinesIndex(Integer id) throws SQLException {
         ArrayList<Index> minesIndex = new ArrayList<>();
 
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        ResultSet rs = statement.executeQuery("SELECT ROW_INX, COL_INX FROM FIELDS "
+        ResultSet rs = JDBC.executeQuery("SELECT ROW_INX, COL_INX FROM FIELDS "
                 + "WHERE GAME_ID="+ id + " AND "
                 + "MINE=true "
                 + "GROUP BY ID;");

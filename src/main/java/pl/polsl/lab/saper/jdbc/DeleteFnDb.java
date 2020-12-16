@@ -1,8 +1,5 @@
 package pl.polsl.lab.saper.jdbc;
-
-import pl.polsl.lab.saper.DatabaseConfig;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Class contains method that define delete database operation
@@ -17,10 +14,9 @@ public class DeleteFnDb {
      * @throws SQLException err syntax or connection
      */
     public static void dropsTables() throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("DROP TABLE FIELDS;");
-        statement.executeUpdate("DROP TABLE GAMES_BOARD;");
-        statement.executeUpdate("DROP TABLE GAMES;");
+        JDBC.executeUpdate("DROP TABLE FIELDS;");
+        JDBC.executeUpdate("DROP TABLE GAMES_BOARD;");
+        JDBC.executeUpdate("DROP TABLE GAMES;");
     }
 
     /**
@@ -28,9 +24,8 @@ public class DeleteFnDb {
      * @throws SQLException err syntax or connection
      */
     public static void truncateTables() throws SQLException {
-        Statement statement = DatabaseConfig.getConn().createStatement();
-        statement.executeUpdate("TRUNCATE TABLE FIELDS;");
-        statement.executeUpdate("TRUNCATE TABLE GAMES_BOARD;");
-        statement.executeUpdate("TRUNCATE TABLE GAMES;");
+        JDBC.executeUpdate("TRUNCATE TABLE FIELDS;");
+        JDBC.executeUpdate("TRUNCATE TABLE GAMES_BOARD;");
+        JDBC.executeUpdate("TRUNCATE TABLE GAMES;");
     }
 }
