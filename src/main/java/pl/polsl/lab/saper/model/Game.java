@@ -10,7 +10,7 @@ import pl.polsl.lab.saper.exception.FieldException;
  */
 public class Game {
 
-    private Integer id; // Game id
+    private String id;                       // Session id
     private GameBoard gameBoard;             // Contains game fields
     private Integer freeFieldCounter;        // Number of no selected field by player with no mine, if 0 player win
     private Boolean running;                 // Game state (1) game running, otherwise 0
@@ -18,16 +18,15 @@ public class Game {
 
     /**
      * Class constructor.
-     *
+     * @param id session id
      * @param height new board height;
      * @param width  new board width;
      * @throws OutOfMemoryError when board is to big
      * @throws FieldException invalid baord size
      */
-    public Game(Integer height, Integer width) throws FieldException {
+    public Game(String id, Integer height, Integer width) throws FieldException {
 
         if (height <= 0 || width <= 0) throw new FieldException("Invalid height or width size");
-        this.id = 0;
         this.gameResult = IEnumGame.GameResult.NONE;
         this.gameBoard = new GameBoard(height, width);
         this.freeFieldCounter = height * width;
@@ -36,14 +35,9 @@ public class Game {
         } catch (OutOfMemoryError e) {
             throw new OutOfMemoryError(e.getMessage());
         }
+        this.id = id;
         this.running = true;
     }
-
-    /**
-     * Get game id
-     * @return game id
-     */
-    public Integer getId() {return this.id;}
 
     /**
      * Method initialize empty new board game
@@ -144,14 +138,6 @@ public class Game {
     }
 
     /**
-     * Method return info about field was selected earlier by player
-     *
-     * @param inx field index object
-     * @return true if was selected, otherwise false
-     * @throws FieldException if field value is game board border or out of range
-     */
-
-    /**
      * Method check that field is correct
      *
      * @param inx field index object
@@ -162,6 +148,13 @@ public class Game {
             throw new FieldException("Invalid row index");
         if (inx.getColIndex() <= 0 || inx.getColIndex() > getNumOfCols() - 2)
             throw new FieldException("Invalid column index");
+    }
+
+    /** Get session id
+     * @return sesion id
+     * */
+    public String getId() {
+        return this.id;
     }
 
 }

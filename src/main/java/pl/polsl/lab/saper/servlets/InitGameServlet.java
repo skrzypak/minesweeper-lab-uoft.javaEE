@@ -38,14 +38,30 @@ public class InitGameServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        HttpSession session = request.getSession();
         Map<String,String> jsonMap = new HashMap<>();
+
+        if (session == null) {
+            try {
+                DatabaseConfig.close();
+            } catch (SQLException throwables) {
+                jsonMap.put("error", throwables.getMessage());
+                throwables.printStackTrace();
+            }
+            response.setContentType("application/json;charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            jsonMap.put("error", "No found active session");
+            out.print(this.gson.toJson(jsonMap));
+            out.flush();
+            return;
+        }
 
         try {
 
             Integer height = Integer.parseInt(request.getParameter("height"));
             Integer width = Integer.parseInt(request.getParameter("width"));
 
-            Game gameModel = new Game(height, width);
+            Game gameModel = new Game(session.getId(), height, width);
             DatabaseConfig.set();
             randomMines(gameModel, height, width);
 

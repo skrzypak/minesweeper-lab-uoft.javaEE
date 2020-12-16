@@ -4,6 +4,7 @@ import pl.polsl.lab.saper.exception.FieldException;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * Class contain game board data
@@ -89,5 +90,12 @@ public class GameBoard {
             throw new FieldException("Field with this index exists");
         }
         this.fields.add(new Field(inx));
+    }
+
+    /** Simple id
+     * @return id
+     * */
+    public Integer getId() {
+        return 0;
     }
 }

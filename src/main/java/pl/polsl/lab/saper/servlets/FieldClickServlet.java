@@ -1,6 +1,7 @@
 package pl.polsl.lab.saper.servlets;
 
 import com.google.gson.Gson;
+import pl.polsl.lab.saper.DatabaseConfig;
 import pl.polsl.lab.saper.exception.FieldException;
 import pl.polsl.lab.saper.jdbc.ReadFnDb;
 import pl.polsl.lab.saper.jdbc.UpdateFnDb;
@@ -12,6 +13,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -40,9 +42,26 @@ public class FieldClickServlet extends HttpServlet {
      */
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        HttpSession session = req.getSession();
         Map<String,String> jsonMap = new HashMap<>();
 
-        Integer id = 0;
+        if (session == null) {
+            try {
+                DatabaseConfig.close();
+            } catch (SQLException throwables) {
+                jsonMap.put("error", throwables.getMessage());
+                throwables.printStackTrace();
+            }
+            resp.setContentType("application/json;charset=UTF-8");
+            PrintWriter out = resp.getWriter();
+            jsonMap.put("error", "No found active session");
+            out.print(this.gson.toJson(jsonMap));
+            out.flush();
+            return;
+        }
+
+        String id = session.getId();
 
         try {
             if(!isGameRunning(id)) {
@@ -130,7 +149,7 @@ public class FieldClickServlet extends HttpServlet {
      * @throws SQLException err syntax or connection
      * @return TRUE if game is running or FALSE if end
      */
-    private boolean isGameRunning(Integer id) throws SQLException {
+    private boolean isGameRunning(String id) throws SQLException {
         IEnumGame.GameResult r = ReadFnDb.getGameResult(id);
         return r == IEnumGame.GameResult.NONE;
     }
@@ -143,7 +162,7 @@ public class FieldClickServlet extends HttpServlet {
      * @param id game id
      * @param inx field index object
      */
-    private void updateGameStatus(Integer id, Index inx) throws SQLException {
+    private void updateGameStatus(String id, Index inx) throws SQLException {
         if (ReadFnDb.getInfoAboutMine(id, inx)) {
             UpdateFnDb.setLose(id);
         }
@@ -158,7 +177,7 @@ public class FieldClickServlet extends HttpServlet {
      * @param inx field index object
      * @param id game id
      */
-    private void findUntilNoZeroField(Map<String,Integer> tmp, Index inx, Integer id) {
+    private void findUntilNoZeroField(Map<String,Integer> tmp, Index inx, String id) {
 
         try {
             isCorrectField(id, inx);
@@ -216,7 +235,7 @@ public class FieldClickServlet extends HttpServlet {
      * @throws SQLException err syntax or connection
      * @throws FieldException if field index is out of range or game board border
      */
-    public void isCorrectField(Integer id, Index inx) throws FieldException, SQLException {
+    public void isCorrectField(String id, Index inx) throws FieldException, SQLException {
         if (inx.getRowIndex() <= 0 || inx.getRowIndex() > ReadFnDb.getNumOfRows(id) - 2)
             throw new FieldException("Invalid row index");
         if (inx.getColIndex() <= 0 || inx.getColIndex() > ReadFnDb.getNumOfCols(id) - 2)

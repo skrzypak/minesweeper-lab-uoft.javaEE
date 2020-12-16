@@ -28,14 +28,14 @@ class GameTest {
      */
     private static Stream<Arguments> FieldExceptionRowGenerator() throws FieldException {
         return Stream.of(
-                Arguments.of(new Game(10, 10), new Index(0, 0)),
-                Arguments.of(new Game(10, 10), new Index(0, 10)),
-                Arguments.of(new Game(10, 10), new Index(11, 0)),
-                Arguments.of(new Game(10, 10), new Index(12, 0)),
-                Arguments.of(new Game(10, 10), new Index(11, 11)),
-                Arguments.of(new Game(10, 10), new Index(12, 12)),
-                Arguments.of(new Game(5, 5), new Index(-5, 5)),
-                Arguments.of(new Game(5, 5), new Index(-5, -5))
+                Arguments.of(new Game("0", 10, 10), new Index(0, 0)),
+                Arguments.of(new Game("0",10, 10), new Index(0, 10)),
+                Arguments.of(new Game("0",10, 10), new Index(11, 0)),
+                Arguments.of(new Game("0",10, 10), new Index(12, 0)),
+                Arguments.of(new Game("0",10, 10), new Index(11, 11)),
+                Arguments.of(new Game("0",10, 10), new Index(12, 12)),
+                Arguments.of(new Game("0",5, 5), new Index(-5, 5)),
+                Arguments.of(new Game("0",5, 5), new Index(-5, -5))
         );
     }
 
@@ -46,13 +46,13 @@ class GameTest {
      */
     private static Stream<Arguments> FieldExceptionColGenerator() throws FieldException {
         return Stream.of(
-                Arguments.of(new Game(10, 10), new Index(1, 0)),
-                Arguments.of(new Game(10, 10), new Index(1, 11)),
-                Arguments.of(new Game(10, 10), new Index(1, 12)),
-                Arguments.of(new Game(10, 10), new Index(10, 0)),
-                Arguments.of(new Game(10, 10), new Index(10, 11)),
-                Arguments.of(new Game(10, 10), new Index(10, 12)),
-                Arguments.of(new Game(5, 5), new Index(5, -5))
+                Arguments.of(new Game("0",10, 10), new Index(1, 0)),
+                Arguments.of(new Game("0",10, 10), new Index(1, 11)),
+                Arguments.of(new Game("0",10, 10), new Index(1, 12)),
+                Arguments.of(new Game("0",10, 10), new Index(10, 0)),
+                Arguments.of(new Game("0",10, 10), new Index(10, 11)),
+                Arguments.of(new Game("0",10, 10), new Index(10, 12)),
+                Arguments.of(new Game("0",5, 5), new Index(5, -5))
         );
     }
 
@@ -63,15 +63,15 @@ class GameTest {
      */
     private static Stream<Arguments> FieldGenerator() throws FieldException {
         return Stream.of(
-                Arguments.of(new Game(1, 1), new Index(1, 1)),
-                Arguments.of(new Game(10, 10), new Index(1, 1)),
-                Arguments.of(new Game(10, 10), new Index(10, 10)),
-                Arguments.of(new Game(10, 10), new Index(5, 5)),
-                Arguments.of(new Game(10, 10), new Index(3, 8)),
-                Arguments.of(new Game(2, 2), new Index(1, 1)),
-                Arguments.of(new Game(2, 2), new Index(1, 2)),
-                Arguments.of(new Game(2, 2), new Index(2, 1)),
-                Arguments.of(new Game(2, 2), new Index(1, 2))
+                Arguments.of(new Game("0",1, 1), new Index(1, 1)),
+                Arguments.of(new Game("0",10, 10), new Index(1, 1)),
+                Arguments.of(new Game("0",10, 10), new Index(10, 10)),
+                Arguments.of(new Game("0",10, 10), new Index(5, 5)),
+                Arguments.of(new Game("0",10, 10), new Index(3, 8)),
+                Arguments.of(new Game("0",2, 2), new Index(1, 1)),
+                Arguments.of(new Game("0",2, 2), new Index(1, 2)),
+                Arguments.of(new Game("0",2, 2), new Index(2, 1)),
+                Arguments.of(new Game("0",2, 2), new Index(1, 2))
         );
     }
 

@@ -22,15 +22,17 @@ public class ReadFnDb {
      * @return true if is selected, otherwise false
      * @throws SQLException err syntax or connection
      */
-    public static boolean getInfoAboutMark(Integer id, Index inx) throws SQLException {
-        ResultSet rs = JDBC.executeQuery("SELECT MARKED FROM FIELDS "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
+    public static boolean getInfoAboutMark(String id, Index inx) throws SQLException {
+        ResultSet rs = JDBC.executeQuery("SELECT FIELDS.MARKED "
+                + "FROM ((GAMES JOIN GAMES_BOARD ON GAMES.GAME_BOARD_ID = GAMES_BOARD.ID) "
+                + "JOIN FIELDS ON GAMES_BOARD.ID = FIELDS.GAME_BOARD_ID) "
+                + "WHERE GAMES.ID="+ "'" + id + "'" + " AND "
+                + "FIELDS.ROW_INX="+inx.getRowIndex()+" AND "
+                + "FIELDS.COL_INX="+inx.getColIndex()
                 + ";");
 
         if (rs.next()) {
-            return rs.getBoolean("MARKED");
+            return rs.getBoolean("FIELDS.MARKED");
         }
 
         throw new SQLException("Not found MARKED param in FIELDS database INDEX: " + inx.toString());
@@ -43,15 +45,17 @@ public class ReadFnDb {
      * @throws SQLException err syntax or connection
      * @return true if field was selected otherwise false
      */
-    public static boolean fieldSelected(Integer id, Index inx) throws SQLException {
-        ResultSet rs = JDBC.executeQuery("SELECT SELECTED FROM FIELDS "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
+    public static boolean fieldSelected(String id, Index inx) throws SQLException {
+        ResultSet rs = JDBC.executeQuery("SELECT FIELDS.SELECTED "
+                + "FROM ((GAMES JOIN GAMES_BOARD ON GAMES.GAME_BOARD_ID = GAMES_BOARD.ID) "
+                + "JOIN FIELDS ON GAMES_BOARD.ID = FIELDS.GAME_BOARD_ID) "
+                + "WHERE GAMES.ID="+ "'" + id + "'" + " AND "
+                + "FIELDS.ROW_INX="+inx.getRowIndex()+" AND "
+                + "FIELDS.COL_INX="+inx.getColIndex()
                 + ";");
 
         if (rs.next()) {
-            return rs.getBoolean("SELECTED");
+            return rs.getBoolean("FIELDS.SELECTED");
         }
 
         throw new SQLException("Not found SELECTED param in FIELDS database INDEX: " + inx.toString());
@@ -64,15 +68,17 @@ public class ReadFnDb {
      * @throws SQLException err syntax or connection
      * @return true if field is mine otherwise false
      */
-    public static boolean getInfoAboutMine(Integer id, Index inx) throws SQLException {
-        ResultSet rs = JDBC.executeQuery("SELECT MINE FROM FIELDS "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
+    public static boolean getInfoAboutMine(String id, Index inx) throws SQLException {
+        ResultSet rs = JDBC.executeQuery("SELECT FIELDS.MINE  "
+                + "FROM ((GAMES JOIN GAMES_BOARD ON GAMES.GAME_BOARD_ID = GAMES_BOARD.ID) "
+                + "JOIN FIELDS ON GAMES_BOARD.ID = FIELDS.GAME_BOARD_ID) "
+                + "WHERE GAMES.ID="+ "'" + id + "'" + " AND "
+                + "FIELDS.ROW_INX="+inx.getRowIndex()+" AND "
+                + "FIELDS.COL_INX="+inx.getColIndex()
                 + ";");
 
         if (rs.next()) {
-            return rs.getBoolean("MINE");
+            return rs.getBoolean("FIELDS.MINE");
         }
 
         throw new SQLException("Not found MINE param in FIELDS database INDEX: " + inx.toString());
@@ -85,17 +91,18 @@ public class ReadFnDb {
      * @throws SQLException err syntax or connection
      * @return number of mines from database
      */
-    public static Integer getNumOfMinesAroundField(Integer id, Index inx) throws SQLException {
-        ResultSet rs = JDBC.executeQuery("SELECT AROUND_MINES FROM FIELDS "
-                + "WHERE GAME_ID="+ id + " AND "
-                + "ROW_INX="+inx.getRowIndex()+" AND "
-                + "COL_INX="+inx.getColIndex()
+    public static Integer getNumOfMinesAroundField(String id, Index inx) throws SQLException {
+        ResultSet rs = JDBC.executeQuery("SELECT FIELDS.AROUND_MINES "
+                + "FROM ((GAMES JOIN GAMES_BOARD ON GAMES.GAME_BOARD_ID = GAMES_BOARD.ID) "
+                + "JOIN FIELDS ON GAMES_BOARD.ID = FIELDS.GAME_BOARD_ID) "
+                + "WHERE GAMES.ID="+ "'" + id + "'" + " AND "
+                + "FIELDS.ROW_INX="+inx.getRowIndex()+" AND "
+                + "FIELDS.COL_INX="+inx.getColIndex()
                 + ";");
 
         if (rs.next()) {
-            return rs.getInt("AROUND_MINES");
+            return rs.getInt("FIELDS.AROUND_MINES");
         }
-
         throw new SQLException("Not found AROUND_MINES param in FIELDS database INDEX: " + inx.toString());
     }
 
@@ -105,9 +112,9 @@ public class ReadFnDb {
      * @throws SQLException err syntax or connection
      * @return number from database
      */
-    public static Integer getFreeFieldCounter(Integer id) throws SQLException {
+    public static Integer getFreeFieldCounter(String id) throws SQLException {
         ResultSet rs = JDBC.executeQuery("SELECT FREE_FIELD_COUNTER FROM GAMES "
-                + "WHERE ID="+ id
+                + "WHERE ID="+ "'" + id + "'"
                 + ";");
 
         if (rs.next()) {
@@ -124,13 +131,14 @@ public class ReadFnDb {
      * @throws SQLException err syntax or connection
      * @return numbers of columns from database
      */
-    public static int getNumOfCols(Integer id) throws SQLException {
-        ResultSet rs = JDBC.executeQuery("SELECT NUM_OF_COLS FROM GAMES_BOARD "
-                + "WHERE GAME_ID="+ id
+    public static int getNumOfCols(String id) throws SQLException {
+        ResultSet rs = JDBC.executeQuery("SELECT GAMES_BOARD.NUM_OF_COLS  "
+                + "FROM (GAMES JOIN GAMES_BOARD ON GAMES.GAME_BOARD_ID = GAMES_BOARD.ID) "
+                + "WHERE GAMES.ID="+ "'" + id + "'"
                 + ";");
 
         if (rs.next()) {
-            return rs.getInt("NUM_OF_COLS");
+            return rs.getInt("GAMES_BOARD.NUM_OF_COLS");
         }
 
         throw new SQLException("Not found NUM_OF_COLS param in GAMES_BOARDS GAME_ID: " + id);
@@ -142,13 +150,14 @@ public class ReadFnDb {
      * @throws SQLException err syntax or connection
      * @return number of board rows from database
      */
-    public static int getNumOfRows(Integer id) throws SQLException {
-        ResultSet rs = JDBC.executeQuery("SELECT NUM_OF_ROWS FROM GAMES_BOARD "
-                + "WHERE GAME_ID="+ id
+    public static int getNumOfRows(String id) throws SQLException {
+        ResultSet rs = JDBC.executeQuery("SELECT GAMES_BOARD.NUM_OF_ROWS  "
+                + "FROM (GAMES JOIN GAMES_BOARD ON GAMES.GAME_BOARD_ID = GAMES_BOARD.ID) "
+                + "WHERE GAMES.ID="+ "'" + id + "'"
                 + ";");
 
         if (rs.next()) {
-            return rs.getInt("NUM_OF_ROWS");
+            return rs.getInt("GAMES_BOARD.NUM_OF_ROWS");
         }
 
         throw new SQLException("Not found NUM_OF_ROWS param in GAMES_BOARDS GAME_ID: " + id);
@@ -160,9 +169,9 @@ public class ReadFnDb {
      * @throws SQLException err syntax or connection
      * @return game state result form database
      */
-    public static IEnumGame.GameResult getGameResult(Integer id) throws SQLException  {
+    public static IEnumGame.GameResult getGameResult(String id) throws SQLException  {
         ResultSet rs = JDBC.executeQuery("SELECT RESULT FROM GAMES "
-                + "WHERE ID="+ id
+                + "WHERE ID="+ "'" + id + "'"
                 + ";");
 
         if (rs.next()) {
@@ -188,13 +197,14 @@ public class ReadFnDb {
      * @return array list
      * @throws SQLException err syntax or connection
      */
-    public static ArrayList<Index> getMinesIndex(Integer id) throws SQLException {
+    public static ArrayList<Index> getMinesIndex(String id) throws SQLException {
         ArrayList<Index> minesIndex = new ArrayList<>();
-
-        ResultSet rs = JDBC.executeQuery("SELECT ROW_INX, COL_INX FROM FIELDS "
-                + "WHERE GAME_ID="+ id + " AND "
+        ResultSet rs = JDBC.executeQuery("SELECT FIELDS.ROW_INX, FIELDS.COL_INX  "
+                + "FROM ((GAMES JOIN GAMES_BOARD ON GAMES.GAME_BOARD_ID = GAMES_BOARD.ID) "
+                + "JOIN FIELDS ON GAMES_BOARD.ID = FIELDS.GAME_BOARD_ID) "
+                + "WHERE GAMES.ID="+ "'" + id + "'" + " AND "
                 + "MINE=true "
-                + "GROUP BY ID;");
+                + "GROUP BY FIELDS.ID;");
 
         while (rs.next()) {
             Index inx = new Index(rs.getInt("ROW_INX"), rs.getInt("COL_INX"));
